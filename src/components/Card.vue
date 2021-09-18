@@ -22,7 +22,7 @@ export default defineComponent({
     },
     dragHandler(e: TouchEvent) {
       if (this.block) {
-        const boundingRect = this.block?.getBoundingClientRect()
+        const boundingRect = this.block.getBoundingClientRect()
         this.block.style.left = (e.targetTouches[0].clientX - (boundingRect.width / 2)) + "px"
         this.block.style.top = (e.targetTouches[0].clientY - (boundingRect.height / 2)) + "px"
       }
