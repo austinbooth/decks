@@ -8,6 +8,7 @@
 import { defineComponent, ref, ComponentPublicInstance } from 'vue'
 export default defineComponent({
   setup() {
+    document.body.style.overscrollBehaviorY = 'contain' // prevent swipe to reload
     const block = ref<ComponentPublicInstance<HTMLInputElement>>()
     return {
       block
