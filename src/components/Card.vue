@@ -1,8 +1,6 @@
 <template>
   <div class="container" ref="containerRef">
     <div
-      v-touch:swipe.left="swipeLeftHandler"
-      v-touch:swipe.right="swipeRightHandler"
       v-touch:drag="dragHandler"
       v-touch:drag.once="dragStartHandler"
       v-touch:release="endHandler"
@@ -44,14 +42,6 @@ export default defineComponent({
     };
   },
   methods: {
-    swipeLeftHandler() {
-      // console.log("<<< swiped LEFT!");
-      // document.body.style.background = "red";
-    },
-    swipeRightHandler() {
-      // console.log(">>> swiped RIGHT!");
-      // document.body.style.background = "green";
-    },
     dragHandler(e: TouchEvent) {
       const windowWidth =
         this.containerRef && this.containerRef.getBoundingClientRect().width;
@@ -64,7 +54,6 @@ export default defineComponent({
           e.targetTouches[0].clientX - boundingRect.width / 2 + "px";
         this.block.style.top =
           e.targetTouches[0].clientY - boundingRect.height / 2 + "px";
-        // console.log(this.block.getBoundingClientRect());
       }
     },
     dragStartHandler(e: TouchEvent) {
@@ -72,7 +61,6 @@ export default defineComponent({
       if (this.startDragXcoord === -1) {
         this.startDragXcoord = e.changedTouches[0].clientX
       }
-      // console.log('START:', e.changedTouches[0].clientX, e.changedTouches[0].clientX)
     },
     endHandler(e: TouchEvent) {
       if (this.block && this.isDragging) {
@@ -85,7 +73,7 @@ export default defineComponent({
         if (screenWidth) {
           const deltaPc = delta / screenWidth
           console.log(deltaPc)
-          if (deltaPc > 0.2) {
+          if (deltaPc > 0.15) {
             document.body.style.background = "green"
           }
 
@@ -101,9 +89,6 @@ export default defineComponent({
 </script>
 <style scoped>
 .container {
-  /* display: flex;
-    justify-content: center; */
-
   position: fixed;
   top: 0;
   left: 0;
