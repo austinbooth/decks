@@ -4,12 +4,14 @@
       v-touch:drag="dragHandler"
       v-touch:drag.once="dragStartHandler"
       v-touch:release="endHandler"
-      id="block"
-      ref="block"
+      id="card"
+      ref="card"
     >
-      <h1>{{ this.cardData.headline }}</h1>
-      <p>{{ this.cardData.description }}</p>
-    </div>
+      <div id="headline">
+        <h1>{{ this.cardData.headline }}</h1>
+      </div>
+        <p>{{ this.cardData.description }}</p>
+      </div>
   </div>
 </template>
 
@@ -22,10 +24,10 @@ type CardData = {
 export default defineComponent({
   setup() {
     document.body.style.overscrollBehaviorY = "contain"; // prevent swipe to reload
-    const block = ref<ComponentPublicInstance<HTMLInputElement>>();
+    const card = ref<ComponentPublicInstance<HTMLInputElement>>();
     const containerRef = ref<ComponentPublicInstance<HTMLInputElement>>();
     return {
-      block,
+      card,
       containerRef,
     };
   },
@@ -48,11 +50,11 @@ export default defineComponent({
       const windowHeight =
         this.containerRef && this.containerRef.getBoundingClientRect().height;
 
-      if (this.block) {
-        const boundingRect = this.block.getBoundingClientRect();
-        this.block.style.left =
+      if (this.card) {
+        const boundingRect = this.card.getBoundingClientRect();
+        this.card.style.left =
           e.targetTouches[0].clientX - boundingRect.width / 2 + "px";
-        this.block.style.top =
+        this.card.style.top =
           e.targetTouches[0].clientY - boundingRect.height / 2 + "px";
       }
     },
@@ -63,9 +65,9 @@ export default defineComponent({
       }
     },
     endHandler(e: TouchEvent) {
-      if (this.block && this.isDragging) {
-        this.block.style.left = "7.75%";
-        this.block.style.top = "4.75%";
+      if (this.card && this.isDragging) {
+        this.card.style.left = "7.75%";
+        this.card.style.top = "4.75%";
         this.isDragging = false;
 
         const delta = e.changedTouches[0].clientX - this.startDragXcoord
@@ -95,7 +97,7 @@ export default defineComponent({
   width: 100%;
   height: 100%;
 }
-#block {
+#card {
   background: rgb(20, 163, 196);
   color: white;
   top: 4.75%;
@@ -103,5 +105,17 @@ export default defineComponent({
   width: 85%;
   height: 90%;
   position: absolute;
+  border-radius: 1%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+#headline {
+  margin: 0 5% 0;
+  border-bottom: 1px solid white;
+}
+p {
+  font-size: 20px;
+  padding: 0 10px 0;
 }
 </style>
