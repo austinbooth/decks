@@ -90,12 +90,12 @@ export default defineComponent({
         if (screenWidth) {
           const deltaPc = delta / screenWidth
           console.log(deltaPc)
-          if (deltaPc > 0.15) {
+          if (deltaPc > 0.2) {
             this.feedbackAfterSwipe('right')
             this.nextCard()
           }
 
-          if (deltaPc < -0.1) {
+          if (deltaPc < -0.15) {
             this.feedbackAfterSwipe('left')
             this.nextCard()
           }
