@@ -8,39 +8,54 @@
       ref="card"
     >
       <div id="headline">
-        <h1>{{ this.cardData.headline }}</h1>
+        <h1>{{ this.chosenCard.headline }}</h1>
       </div>
-        <p>{{ this.cardData.description }}</p>
+        <p>{{ this.chosenCard.description }}</p>
       </div>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref, ComponentPublicInstance } from "vue";
-type CardData = {
-  headline: string;
-  description: string;
-};
+import { useStore } from 'vuex'
+import { shuffle } from 'lodash'
+import { Card } from '@/types'
+
 export default defineComponent({
   setup() {
     document.body.style.overscrollBehaviorY = "contain"; // prevent swipe to reload
-    const card = ref<ComponentPublicInstance<HTMLInputElement>>();
-    const containerRef = ref<ComponentPublicInstance<HTMLInputElement>>();
+    document.body.style.transition = "background-color 1s"
+    document.body.style.transitionDelay = "0s"
+    const card = ref<ComponentPublicInstance<HTMLInputElement>>()
+    const containerRef = ref<ComponentPublicInstance<HTMLInputElement>>()
+    
     return {
       card,
       containerRef,
     };
   },
   data() {
-    const cardData: CardData = {
-      headline: "Heading to the cinema",
-      description: "Catch a movie on the big screen",
-    };
-    let isDragging = false;
+    const isDragging = false;
+    const store = useStore()
+    const getCard = function*() {
+      const shuffledCards = shuffle(store.state.cards)
+      for (let i = 0; i < shuffledCards.length; i++) {
+        yield shuffledCards[i]
+      }
+    }()
+    const endOfDeckCard: Card = {
+      uid: 'END',
+      headline: 'End',
+      description: "You've reached the end of the deck.",
+    }
+    const chosenCard = getCard.next().value
+
     return {
-      cardData,
       isDragging,
-      startDragXcoord: -1
+      startDragXcoord: -1,
+      getCard,
+      endOfDeckCard,
+      chosenCard,
     };
   },
   methods: {
@@ -75,17 +90,26 @@ export default defineComponent({
         if (screenWidth) {
           const deltaPc = delta / screenWidth
           console.log(deltaPc)
-          if (deltaPc > 0.15) {
-            document.body.style.background = "green"
+          if (deltaPc > 0.2) {
+            this.feedbackAfterSwipe('right')
+            this.nextCard()
           }
 
-          if (deltaPc < -0.2) {
-            document.body.style.background = "red"
+          if (deltaPc < -0.15) {
+            this.feedbackAfterSwipe('left')
+            this.nextCard()
           }
         }
-        console.log(delta)
       }
     },
+    feedbackAfterSwipe(direction: 'left' | 'right') {
+      document.body.style.background = direction === 'right' ? 'green' : 'red'
+      setTimeout(() => document.body.style.background = "white", 1000)
+    },
+    nextCard() {
+      const { done, value } = this.getCard.next()
+      this.chosenCard = !done ? value : this.endOfDeckCard
+    }
   },
 });
 </script>

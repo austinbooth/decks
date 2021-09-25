@@ -3,11 +3,13 @@
 
 import { ComponentCustomProperties } from 'vue'
 import { Store } from 'vuex'
+import { Card } from '@/types'
 
 declare module '@vue/runtime-core' {
   // Declare your own store states.
   interface State {
-    counter: number
+    // counter: number
+    cards: []
   }
 
   interface ComponentCustomProperties {
