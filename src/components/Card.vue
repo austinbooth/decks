@@ -56,7 +56,9 @@ export default defineComponent({
       getCard,
       endOfDeckCard,
       chosenCard,
-    };
+      card_x_coord: '7.75%',
+      card_y_coord: '4.75%',
+    }
   },
   methods: {
     dragHandler(e: TouchEvent) {
@@ -67,9 +69,9 @@ export default defineComponent({
 
       if (this.card) {
         const boundingRect = this.card.getBoundingClientRect();
-        this.card.style.left =
+        this.card_x_coord =
           e.targetTouches[0].clientX - boundingRect.width / 2 + "px";
-        this.card.style.top =
+        this.card_y_coord =
           e.targetTouches[0].clientY - boundingRect.height / 2 + "px";
       }
     },
@@ -133,6 +135,7 @@ export default defineComponent({
   display: flex;
   flex-direction: column;
   justify-content: center;
+  transform: translate(v-bind('card_x_coord'), v-bind('card_y_coord'));
 }
 #headline {
   margin: 0 5% 0;
