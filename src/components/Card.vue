@@ -24,8 +24,6 @@ import { Card } from '@/types'
 export default defineComponent({
   setup() {
     document.body.style.overscrollBehaviorY = "contain"; // prevent swipe to reload
-    document.body.style.transition = "background-color 1s"
-    document.body.style.transitionDelay = "0s"
     const card = ref<ComponentPublicInstance<HTMLInputElement>>()
     const containerRef = ref<ComponentPublicInstance<HTMLInputElement>>()
     
@@ -58,6 +56,7 @@ export default defineComponent({
       chosenCard,
       card_x_coord: '7.75%',
       card_y_coord: '4.75%',
+      containerColor: 'white',
     }
   },
   methods: {
@@ -105,8 +104,8 @@ export default defineComponent({
       }
     },
     feedbackAfterSwipe(direction: 'left' | 'right') {
-      document.body.style.background = direction === 'right' ? 'green' : 'red'
-      setTimeout(() => document.body.style.background = "white", 1000)
+      this.containerColor = direction === 'right' ? 'green' : 'red'
+      setTimeout(() => this.containerColor = "white", 1000)
     },
     nextCard() {
       const { done, value } = this.getCard.next()
@@ -122,6 +121,10 @@ export default defineComponent({
   left: 0;
   width: 100%;
   height: 100%;
+  background: v-bind('containerColor');
+  transition-property: background-color;
+  transition-duration: 1s;
+  transition-delay: 0s;
 }
 #card {
   background: rgb(20, 163, 196);
