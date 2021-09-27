@@ -83,9 +83,9 @@ export default defineComponent({
     },
     endHandler(e: TouchEvent) {
       if (this.card && this.isDragging) {
-        this.card.style.left = "7.75%";
-        this.card.style.top = "4.75%";
-        this.isDragging = false;
+        this.card_x_coord = "7.75%"
+        this.card_y_coord = "4.75%"
+        this.isDragging = false
 
         const delta = e.changedTouches[0].clientX - this.startDragXcoord
         const screenWidth = e.view?.innerWidth
@@ -126,8 +126,6 @@ export default defineComponent({
 #card {
   background: rgb(20, 163, 196);
   color: white;
-  top: 4.75%;
-  left: 7.75%;
   width: 85%;
   height: 90%;
   position: absolute;
