@@ -61,11 +61,6 @@ export default defineComponent({
   },
   methods: {
     dragHandler(e: TouchEvent) {
-      const windowWidth =
-        this.containerRef && this.containerRef.getBoundingClientRect().width;
-      const windowHeight =
-        this.containerRef && this.containerRef.getBoundingClientRect().height;
-
       if (this.card) {
         const boundingRect = this.card.getBoundingClientRect();
         this.card_x_coord =
