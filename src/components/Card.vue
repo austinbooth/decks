@@ -54,8 +54,8 @@ export default defineComponent({
       getCard,
       endOfDeckCard,
       chosenCard,
-      card_x_coord: '9%',
-      card_y_coord: '5.25%',
+      card_x_coord: store.state.CARD_CENTERED_X_COORD,
+      card_y_coord: store.state.CARD_CENTERED_Y_COORD,
       containerColor: 'white',
     }
   },
@@ -82,8 +82,8 @@ export default defineComponent({
     },
     endHandler(e: TouchEvent) {
       if (this.card && this.isDragging) {
-        this.card_x_coord = "9%"
-        this.card_y_coord = "5.25%"
+        this.card_x_coord = this.$store.state.CARD_CENTERED_X_COORD
+        this.card_y_coord = this.$store.state.CARD_CENTERED_Y_COORD
         this.isDragging = false
 
         const delta = e.changedTouches[0].clientX - this.startDragXcoord

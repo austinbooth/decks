@@ -9,6 +9,8 @@ declare module '@vue/runtime-core' {
   // Declare your own store states.
   interface State {
     // counter: number
+    CARD_CENTERED_X_COORD: string,
+    CARD_CENTERED_Y_COORD: string,
     cards: []
   }
 
