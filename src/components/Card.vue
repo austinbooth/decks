@@ -17,59 +17,38 @@
 
 <script lang="ts">
 import { defineComponent, ref, ComponentPublicInstance } from "vue";
-import { useStore } from 'vuex'
-import { shuffle } from 'lodash'
-import { Card } from '@/types'
 
 export default defineComponent({
+  props: ['chosenCard', 'endOfDeckCard', 'nextCard'],
   setup() {
     document.body.style.overscrollBehaviorY = "contain"; // prevent swipe to reload
-    document.body.style.transition = "background-color 1s"
-    document.body.style.transitionDelay = "0s"
     const card = ref<ComponentPublicInstance<HTMLInputElement>>()
     const containerRef = ref<ComponentPublicInstance<HTMLInputElement>>()
-    
     return {
       card,
       containerRef,
-    };
+    }
   },
   data() {
     const isDragging = false;
-    const store = useStore()
-    const getCard = function*() {
-      const shuffledCards = shuffle(store.state.cards)
-      for (let i = 0; i < shuffledCards.length; i++) {
-        yield shuffledCards[i]
-      }
-    }()
-    const endOfDeckCard: Card = {
-      uid: 'END',
-      headline: 'End',
-      description: "You've reached the end of the deck.",
+    if (!this.nextCard.uid) {
+      this.nextCard()
     }
-    const chosenCard = getCard.next().value
-
     return {
       isDragging,
       startDragXcoord: -1,
-      getCard,
-      endOfDeckCard,
-      chosenCard,
-    };
+      card_x_coord: this.$store.state.CARD_CENTERED_X_COORD,
+      card_y_coord: this.$store.state.CARD_CENTERED_Y_COORD,
+      containerColor: 'white',
+    }
   },
   methods: {
     dragHandler(e: TouchEvent) {
-      const windowWidth =
-        this.containerRef && this.containerRef.getBoundingClientRect().width;
-      const windowHeight =
-        this.containerRef && this.containerRef.getBoundingClientRect().height;
-
       if (this.card) {
         const boundingRect = this.card.getBoundingClientRect();
-        this.card.style.left =
+        this.card_x_coord =
           e.targetTouches[0].clientX - boundingRect.width / 2 + "px";
-        this.card.style.top =
+        this.card_y_coord =
           e.targetTouches[0].clientY - boundingRect.height / 2 + "px";
       }
     },
@@ -81,9 +60,9 @@ export default defineComponent({
     },
     endHandler(e: TouchEvent) {
       if (this.card && this.isDragging) {
-        this.card.style.left = "7.75%";
-        this.card.style.top = "4.75%";
-        this.isDragging = false;
+        this.card_x_coord = this.$store.state.CARD_CENTERED_X_COORD
+        this.card_y_coord = this.$store.state.CARD_CENTERED_Y_COORD
+        this.isDragging = false
 
         const delta = e.changedTouches[0].clientX - this.startDragXcoord
         const screenWidth = e.view?.innerWidth
@@ -103,15 +82,11 @@ export default defineComponent({
       }
     },
     feedbackAfterSwipe(direction: 'left' | 'right') {
-      document.body.style.background = direction === 'right' ? 'green' : 'red'
-      setTimeout(() => document.body.style.background = "white", 1000)
+      this.containerColor = direction === 'right' ? 'green' : 'red'
+      setTimeout(() => this.containerColor = "white", 1000)
     },
-    nextCard() {
-      const { done, value } = this.getCard.next()
-      this.chosenCard = !done ? value : this.endOfDeckCard
-    }
   },
-});
+})
 </script>
 <style scoped>
 .container {
@@ -120,12 +95,14 @@ export default defineComponent({
   left: 0;
   width: 100%;
   height: 100%;
+  background: v-bind('containerColor');
+  transition-property: background-color;
+  transition-duration: 1s;
+  transition-delay: 0s;
 }
 #card {
   background: rgb(20, 163, 196);
   color: white;
-  top: 4.75%;
-  left: 7.75%;
   width: 85%;
   height: 90%;
   position: absolute;
@@ -133,6 +110,7 @@ export default defineComponent({
   display: flex;
   flex-direction: column;
   justify-content: center;
+  transform: translate(v-bind('card_x_coord'), v-bind('card_y_coord'));
 }
 #headline {
   margin: 0 5% 0;
