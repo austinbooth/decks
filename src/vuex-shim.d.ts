@@ -12,7 +12,7 @@ declare module '@vue/runtime-core' {
     CARD_CENTERED_X_COORD: string,
     CARD_CENTERED_Y_COORD: string,
     cards: [],
-    cardsSwiped: string[],
+    cardsSwiped: SwipedCard[],
   }
 
   interface ComponentCustomProperties {
