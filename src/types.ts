@@ -3,3 +3,7 @@ export interface Card {
   headline: string
   description: string
 }
+
+export interface SwipedCard extends Card {
+  swiped: 'left' | 'right'
+}

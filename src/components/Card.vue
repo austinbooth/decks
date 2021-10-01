@@ -11,12 +11,17 @@
         <h1>{{ this.chosenCard.headline }}</h1>
       </div>
         <p>{{ this.chosenCard.description }}</p>
+        <div v-if="this.chosenCard.uid === 'END'">
+        <button @click="this.$router.push('review')">Click here to review your chosen cards</button>
       </div>
+      </div>
+      
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, ComponentPublicInstance } from "vue";
+import { defineComponent, ref, ComponentPublicInstance } from "vue"
+import { SwipedCard } from '@/types'
 
 export default defineComponent({
   props: ['chosenCard', 'endOfDeckCard', 'nextCard'],
@@ -71,11 +76,26 @@ export default defineComponent({
           console.log(deltaPc)
           if (deltaPc > 0.2) {
             this.feedbackAfterSwipe('right')
+            const swipedCard: SwipedCard = {
+              ...this.chosenCard,
+              swiped: 'right'
+            }
+            if (this.chosenCard.uid !== 'END') {
+              this.$store.commit('addSwipedCard', swipedCard)
+            }
             this.nextCard()
+
           }
 
           if (deltaPc < -0.15) {
             this.feedbackAfterSwipe('left')
+            const swipedCard: SwipedCard = {
+              ...this.chosenCard,
+              swiped: 'left'
+            }
+            if (this.chosenCard.uid !== 'END') {
+              this.$store.commit('addSwipedCard', swipedCard)
+            }
             this.nextCard()
           }
         }
