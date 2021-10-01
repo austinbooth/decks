@@ -18,15 +18,13 @@
 <script lang="ts">
 import { defineComponent, ref, ComponentPublicInstance } from "vue";
 import { useStore } from 'vuex'
-import { shuffle } from 'lodash'
-import { Card } from '@/types'
 
 export default defineComponent({
+  props: ['chosenCard', 'endOfDeckCard', 'nextCard'],
   setup() {
     document.body.style.overscrollBehaviorY = "contain"; // prevent swipe to reload
     const card = ref<ComponentPublicInstance<HTMLInputElement>>()
     const containerRef = ref<ComponentPublicInstance<HTMLInputElement>>()
-    
     return {
       card,
       containerRef,
@@ -34,28 +32,14 @@ export default defineComponent({
   },
   data() {
     const isDragging = false;
-    const store = useStore()
-    const getCard = function*() {
-      const shuffledCards = shuffle(store.state.cards)
-      for (let i = 0; i < shuffledCards.length; i++) {
-        yield shuffledCards[i]
-      }
-    }()
-    const endOfDeckCard: Card = {
-      uid: 'END',
-      headline: 'End',
-      description: "You've reached the end of the deck.",
+    if (!this.nextCard.uid) {
+      this.nextCard()
     }
-    const chosenCard = getCard.next().value
-
     return {
       isDragging,
       startDragXcoord: -1,
-      getCard,
-      endOfDeckCard,
-      chosenCard,
-      card_x_coord: store.state.CARD_CENTERED_X_COORD,
-      card_y_coord: store.state.CARD_CENTERED_Y_COORD,
+      card_x_coord: this.$store.state.CARD_CENTERED_X_COORD,
+      card_y_coord: this.$store.state.CARD_CENTERED_Y_COORD,
       containerColor: 'white',
     }
   },
@@ -102,12 +86,8 @@ export default defineComponent({
       this.containerColor = direction === 'right' ? 'green' : 'red'
       setTimeout(() => this.containerColor = "white", 1000)
     },
-    nextCard() {
-      const { done, value } = this.getCard.next()
-      this.chosenCard = !done ? value : this.endOfDeckCard
-    }
   },
-});
+})
 </script>
 <style scoped>
 .container {
