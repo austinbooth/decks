@@ -14,6 +14,22 @@ import { defineComponent } from "vue";
 import Counter from "@/components/Counter.vue"
 import CardTest from "@/components/CardTest.vue"
 import CardContainer from "@/components/CardContainer.vue"
+import { openDB } from 'idb'
+import { createAnonymousUser } from '@/firebase'
+import { DBNAME, DEFAULT_STORE_NAME } from '@/indexeddb'
+
+(async () => {
+  const version = 1
+  const db = await openDB(DBNAME, version, {
+    upgrade: async(db, localDbVersion) => {
+      if (localDbVersion === 0) {
+        await db.createObjectStore(DEFAULT_STORE_NAME)
+        const createdUserId = await createAnonymousUser()
+        console.log('Created user:', createdUserId)
+      }      
+    }
+  })
+})()
 
 export default defineComponent({
   name: "Home",
