@@ -38,20 +38,18 @@ export default createStore({
     CARD_CENTERED_X_COORD: '9%',
     CARD_CENTERED_Y_COORD: '5.25%',
     cards: [],
-    cardsSwiped: [] as SwipedCard[],
     currentSession: {
-      
+      cardsSwiped: [] as SwipedCard[],
     } as Session,
   },
   mutations: {
     // increment: (currentState, value) => currentState.counter += value
     setCards: (currentState, value) => currentState.cards = value,
     addSwipedCard: async(currentState, newCard) => {
-      if (currentState.cardsSwiped.length === 0) {
+      if (currentState.currentSession.cardsSwiped.length === 0) {
         const session = await setUpSwipingSession()
         currentState.currentSession = session
       }
-      currentState.cardsSwiped.push(newCard) // TODO remove this as not required now saving to currentSession below
       currentState.currentSession.cardsSwiped.push(newCard)
       await writeSessionToidb(SWIPING_SESSIONS_STORE_NAME, {
         ...currentState.currentSession,

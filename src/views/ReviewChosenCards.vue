@@ -2,7 +2,7 @@
   <div>
     <h3>You swiped right on:</h3>
     <p
-      v-for="card in this.$store.state.cardsSwiped.filter(
+      v-for="card in this.$store.state.currentSession.cardsSwiped.filter(
         (c) => c.swiped === 'right'
       )"
       :key="card.uid"
@@ -35,7 +35,7 @@ export default defineComponent({
   methods: {
     itemClick(e: Event) {
       const target = (e.currentTarget as HTMLInputElement)
-      const card = this.$store.state.cardsSwiped.find(c => c.uid === target.id)
+      const card = this.$store.state.currentSession.cardsSwiped.find(c => c.uid === target.id)
       if (card) {
         this.selected = card
       }
