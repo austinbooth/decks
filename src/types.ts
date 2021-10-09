@@ -4,6 +4,7 @@ export interface Card {
   description: string
 }
 
-export interface SwipedCard extends Card {
+export interface SwipedCard {
+  card: Card
   swiped: 'left' | 'right'
 }

@@ -51,11 +51,12 @@ export default createStore({
         currentState.currentSession = session
       }
       currentState.currentSession.cardsSwiped.push(newCard)
-      await writeSessionToidb(SWIPING_SESSIONS_STORE_NAME, {
+      const idbSession = {
         ...currentState.currentSession,
         datetime: currentState.currentSession.datetime.toDate(),
-        cardsSwiped: currentState.currentSession.cardsSwiped.map(e => ({...e}))
-      })
+        cardsSwiped: currentState.currentSession.cardsSwiped.map(e => ({...e, card: {...e.card}}))
+      }
+      await writeSessionToidb(SWIPING_SESSIONS_STORE_NAME, idbSession)
       await setSessionInFireStore(currentState.currentSession)
     },
   },

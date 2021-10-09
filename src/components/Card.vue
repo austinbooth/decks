@@ -76,9 +76,10 @@ export default defineComponent({
           console.log(deltaPc)
           if (deltaPc > 0.2) {
             this.feedbackAfterSwipe('right')
+            //
             const swipedCard: SwipedCard = {
-              ...this.chosenCard,
-              swiped: 'right'
+              card: {...this.chosenCard},
+              swiped: 'right',
             }
             if (this.chosenCard.uid !== 'END') {
               this.$store.commit('addSwipedCard', swipedCard)
@@ -90,7 +91,7 @@ export default defineComponent({
           if (deltaPc < -0.15) {
             this.feedbackAfterSwipe('left')
             const swipedCard: SwipedCard = {
-              ...this.chosenCard,
+              card: {...this.chosenCard},
               swiped: 'left'
             }
             if (this.chosenCard.uid !== 'END') {

@@ -2,18 +2,18 @@
   <div>
     <h3>You swiped right on:</h3>
     <p
-      v-for="card in this.$store.state.currentSession.cardsSwiped.filter(
+      v-for="swipedCard in this.$store.state.currentSession.cardsSwiped.filter(
         (c) => c.swiped === 'right'
       )"
-      :key="card.uid"
-      :id="card.uid"
+      :key="swipedCard.card.uid"
+      :id="swipedCard.card.uid"
       @click="itemClick($event)"
     >
-      {{ card.headline }}
+      {{ swipedCard.card.headline }}
     </p>
   </div>
-  <div v-if="this.selected.uid.length > 0">
-    <p>You selected {{this.selected.headline}}</p>
+  <div v-if="this.selected.card.uid.length > 0">
+    <p>You selected {{this.selected.card.headline}}</p>
     <p>Is this the activity/food that you will do/eat?</p>
     <button @click="selectItemToDo($event)">Yes</button>
   </div>
@@ -27,7 +27,7 @@ import { DateTime } from 'luxon'
 
 export default defineComponent({
   data() {
-    let selected: SwipedCard = {uid:'', headline:'', description:'', swiped: 'right'}
+    let selected: SwipedCard = {card: {uid:'', headline:'', description:''}, swiped: 'right'}
     return {
       selected
     }
@@ -35,15 +35,16 @@ export default defineComponent({
   methods: {
     itemClick(e: Event) {
       const target = (e.currentTarget as HTMLInputElement)
-      const card = this.$store.state.currentSession.cardsSwiped.find(c => c.uid === target.id)
+      const card = this.$store.state.currentSession.cardsSwiped.find(c => c.card.uid === target.id)
       if (card) {
         this.selected = card
       }
     },
     selectItemToDo(e: Event) {
-      if (this.selected.uid.length > 0) {
-        const {uid, headline, description, swiped} = this.selected
-        const cardToDo = mapKeys(this.selected, (_, key) => key === 'uid' ? 'cardUid' : key)
+      if (this.selected.card.uid.length > 0) {
+        // TODO check this logic and assign a type to cardToDo
+        const cardToDo = mapKeys(this.selected.card, (_, key) => key === 'uid' ? 'cardUid' : key)
+        // is renaming this key necessary?
         cardToDo.datetime = DateTime.now().toString()
         // TODO Save this data
       }
