@@ -3,14 +3,9 @@ import { writeToidb, SWIPING_SESSIONS_STORE_NAME, writeSessionToidb, getUserFrom
 import firebase from '@/firebase/firebaseSingleton'
 import { setSessionInFireStore } from "@/firebase";
 import { DateTime } from "luxon"
-import { Card, SwipedCard } from '@/types'
+import { Card, SwipedCard, Session, IDBSession } from '@/types'
 
-export interface Session {
-  uid: string
-  datetime: firebase.firestore.Timestamp
-  cardsSwiped: SwipedCard[]
-  user: string
-}
+
 
 const setUpSwipingSession = async() => {
   const db = firebase.firestore()
@@ -24,11 +19,12 @@ const setUpSwipingSession = async() => {
     cardsSwiped: [],
     user: uid,
   }
-  createdDoc.set(session)
-  writeSessionToidb(SWIPING_SESSIONS_STORE_NAME, {
+  const idbSession: IDBSession = {
     ...session,
     datetime: session.datetime.toDate()
-  })
+  }
+  createdDoc.set(session)
+  writeSessionToidb(SWIPING_SESSIONS_STORE_NAME, idbSession)
   return session
 }
 

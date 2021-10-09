@@ -1,4 +1,5 @@
 import { openDB } from "idb"
+import { IDBSession } from '@/types'
 
 export const DBNAME = 'decks'
 export const USER_STORE_NAME = 'user'
@@ -12,11 +13,7 @@ export const writeToidb = async(storeName: string, key: string, val: string) => 
   await tx.done
 }
 
-interface IDBSession {
-  uid: string
-}
-
-export const writeSessionToidb = async<T extends IDBSession>(storeName: string, session: T) => {
+export const writeSessionToidb = async(storeName: string, session: IDBSession) => {
   console.log('SESSION TO ADD:', session)
   const db = await openDB(DBNAME)
   await db.put(SWIPING_SESSIONS_STORE_NAME, session)
