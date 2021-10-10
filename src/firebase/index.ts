@@ -25,7 +25,7 @@ export const createAnonymousUser = async() => {
       }
       await Promise.all([
         createdDoc.set(initialUserData),
-        writeUserToidb('uid', createdDoc.id)
+        writeUserToidb(createdDoc.id)
       ])
     }
     return createdDoc.id
