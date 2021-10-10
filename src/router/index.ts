@@ -1,6 +1,6 @@
 import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router"
 import Home from "../views/Home.vue"
-import ReviewChosenCards from "../views/ReviewChosenCards.vue"
+import ChooseChosenCard from "../views/ChooseChosenCard.vue"
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -20,7 +20,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/review",
     name: "Review",
-    component: ReviewChosenCards
+    component: ChooseChosenCard
   }
 ];
 
