@@ -3,7 +3,8 @@
 
 import { ComponentCustomProperties } from 'vue'
 import { Store } from 'vuex'
-import { Card } from '@/types'
+import { Card, SwipedCard } from '@/types'
+import { Session } from '@/types'
 
 declare module '@vue/runtime-core' {
   // Declare your own store states.
@@ -11,7 +12,8 @@ declare module '@vue/runtime-core' {
     // counter: number
     CARD_CENTERED_X_COORD: string,
     CARD_CENTERED_Y_COORD: string,
-    cards: []
+    cards: [],
+    currentSession: Session,
   }
 
   interface ComponentCustomProperties {

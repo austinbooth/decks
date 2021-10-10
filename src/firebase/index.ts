@@ -1,5 +1,6 @@
 import firebase from '@/firebase/firebaseSingleton'
-import { writeToidb, DEFAULT_STORE_NAME } from '@/indexeddb'
+import { writeUserToidb, USER_STORE_NAME, SWIPING_SESSIONS_STORE_NAME } from '@/indexeddb'
+import { Session } from '@/types'
 
 export const getAllCardsInDeck = async(deck = 'breakfast-deck') => {
   try {
@@ -20,11 +21,11 @@ export const createAnonymousUser = async() => {
     if (createdDoc.id) {
       const initialUserData = {
         created: firebaseNowTimestamp,
-        uid_anonymous: createdDoc.id,
+        uid: createdDoc.id,
       }
       await Promise.all([
         createdDoc.set(initialUserData),
-        writeToidb(DEFAULT_STORE_NAME, createdDoc.id, 'uid_anonymous')
+        writeUserToidb(createdDoc.id)
       ])
     }
     return createdDoc.id
@@ -34,13 +35,22 @@ export const createAnonymousUser = async() => {
 }
 
 interface User {
-  uid_anonymous: string
+  uid: string
 }
 
 export const setUserInFireStore = async <T extends User>(userId: string, user: T, merge: boolean) => {
   try {
     const db = firebase.firestore()
     await db.collection(`/users/`).doc(userId).set(user, {merge})
+  } catch (err) {
+    console.error(err)
+  }
+}
+
+export const setSessionInFireStore = async(session: Session) => {
+  try {
+    const db = firebase.firestore()
+    await db.collection(`/${SWIPING_SESSIONS_STORE_NAME}/`).doc(session.uid).set(session)
   } catch (err) {
     console.error(err)
   }
