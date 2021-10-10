@@ -1,9 +1,8 @@
 import { createStore } from "vuex";
-import { writeToidb, SWIPING_SESSIONS_STORE_NAME, writeSessionToidb, getUserFromidb } from '@/indexeddb'
+import { SWIPING_SESSIONS_STORE_NAME, writeSessionToidb, getUserFromidb } from '@/indexeddb'
 import firebase from '@/firebase/firebaseSingleton'
 import { setSessionInFireStore } from "@/firebase";
-import { DateTime } from "luxon"
-import { Card, SwipedCard, Session, IDBSession } from '@/types'
+import { SwipedCard, Session, IDBSession } from '@/types'
 
 
 
@@ -24,7 +23,7 @@ const setUpSwipingSession = async() => {
     datetime: session.datetime.toDate()
   }
   createdDoc.set(session)
-  writeSessionToidb(SWIPING_SESSIONS_STORE_NAME, idbSession)
+  writeSessionToidb(idbSession)
   return session
 }
 
@@ -52,7 +51,7 @@ export default createStore({
         datetime: currentState.currentSession.datetime.toDate(),
         cardsSwiped: currentState.currentSession.cardsSwiped.map(e => ({...e, card: {...e.card}}))
       }
-      await writeSessionToidb(SWIPING_SESSIONS_STORE_NAME, idbSession)
+      await writeSessionToidb(idbSession)
       await setSessionInFireStore(currentState.currentSession)
     },
   },

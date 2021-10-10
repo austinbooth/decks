@@ -1,5 +1,5 @@
 import firebase from '@/firebase/firebaseSingleton'
-import { writeToidb, USER_STORE_NAME, SWIPING_SESSIONS_STORE_NAME } from '@/indexeddb'
+import { writeUserToidb, USER_STORE_NAME, SWIPING_SESSIONS_STORE_NAME } from '@/indexeddb'
 import { Session } from '@/types'
 
 export const getAllCardsInDeck = async(deck = 'breakfast-deck') => {
@@ -25,7 +25,7 @@ export const createAnonymousUser = async() => {
       }
       await Promise.all([
         createdDoc.set(initialUserData),
-        writeToidb(USER_STORE_NAME, 'uid', createdDoc.id)
+        writeUserToidb('uid', createdDoc.id)
       ])
     }
     return createdDoc.id

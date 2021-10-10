@@ -5,16 +5,12 @@ export const DBNAME = 'decks'
 export const USER_STORE_NAME = 'user'
 export const SWIPING_SESSIONS_STORE_NAME = 'sessions'
 
-export const writeToidb = async(storeName: string, key: string, val: string) => {
+export const writeUserToidb = async(key: string, val: string) => {
   const db = await openDB(DBNAME)
-  const tx = db.transaction(storeName, 'readwrite')
-  const userStore = tx.objectStore(storeName)
-  await userStore.put(val, key)
-  await tx.done
+  await db.put(USER_STORE_NAME, val, key)
 }
 
-export const writeSessionToidb = async(storeName: string, session: IDBSession) => {
-  console.log('SESSION TO ADD:', session)
+export const writeSessionToidb = async(session: IDBSession) => {
   const db = await openDB(DBNAME)
   await db.put(SWIPING_SESSIONS_STORE_NAME, session)
 }
