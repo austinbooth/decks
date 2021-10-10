@@ -14,8 +14,8 @@
   </div>
   <div v-if="this.selected.card.uid">
     <p>You selected {{this.selected.card.headline}}</p>
-    <p>Is this the activity/food that you will do/eat?</p>
-    <button @click="selectItemToDo($event)">Yes</button>
+    <p>Is this your final selection?</p>
+    <button @click="selectItemToDo">Yes</button>
   </div>
 </template>
 
@@ -40,7 +40,7 @@ export default defineComponent({
         this.selected = card
       }
     },
-    selectItemToDo(e: Event) {
+    selectItemToDo() {
       if (this.selected.card.uid) {
         this.$store.commit('addChosenCard', this.selected.card.uid)
       }
