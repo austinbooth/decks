@@ -4,7 +4,7 @@
 import { ComponentCustomProperties } from 'vue'
 import { Store } from 'vuex'
 import { Card, SwipedCard } from '@/types'
-import { Session } from '@/store'
+import { Session } from '@/types'
 
 declare module '@vue/runtime-core' {
   // Declare your own store states.

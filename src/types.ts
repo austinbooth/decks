@@ -15,6 +15,7 @@ interface SessionBase {
   uid: string
   cardsSwiped: SwipedCard[]
   user: string
+  chosenCard: null | string
 }
 
 export interface Session extends SessionBase {

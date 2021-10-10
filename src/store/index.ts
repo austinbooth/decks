@@ -4,8 +4,6 @@ import firebase from '@/firebase/firebaseSingleton'
 import { setSessionInFireStore } from "@/firebase";
 import { SwipedCard, Session, IDBSession } from '@/types'
 
-
-
 const setUpSwipingSession = async() => {
   const db = firebase.firestore()
   const firebaseNowTimestamp = firebase.firestore.Timestamp.now()
@@ -16,6 +14,7 @@ const setUpSwipingSession = async() => {
     uid: createdDoc.id,
     datetime: firebaseNowTimestamp,
     cardsSwiped: [],
+    chosenCard: null,
     user: uid,
   }
   const idbSession: IDBSession = {
@@ -25,6 +24,16 @@ const setUpSwipingSession = async() => {
   createdDoc.set(session)
   writeSessionToidb(idbSession)
   return session
+}
+
+const writeSessionToFirebaseAndIDB = async(session: Session) => {
+  const idbSession = {
+    ...session,
+    datetime: session.datetime.toDate(),
+    cardsSwiped: session.cardsSwiped.map(e => ({...e, card: {...e.card}}))
+  }
+  await writeSessionToidb(idbSession)
+  await setSessionInFireStore(session)
 }
 
 export default createStore({
@@ -46,14 +55,12 @@ export default createStore({
         currentState.currentSession = session
       }
       currentState.currentSession.cardsSwiped.push(newCard)
-      const idbSession = {
-        ...currentState.currentSession,
-        datetime: currentState.currentSession.datetime.toDate(),
-        cardsSwiped: currentState.currentSession.cardsSwiped.map(e => ({...e, card: {...e.card}}))
-      }
-      await writeSessionToidb(idbSession)
-      await setSessionInFireStore(currentState.currentSession)
+      await writeSessionToFirebaseAndIDB(currentState.currentSession)
     },
+    addChosenCard: async(currentState, chosenCardId: string) => {
+      currentState.currentSession.chosenCard = chosenCardId
+      await writeSessionToFirebaseAndIDB(currentState.currentSession)
+    }
   },
   actions: {},
   modules: {},

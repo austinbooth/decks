@@ -12,7 +12,7 @@
       {{ swipedCard.card.headline }}
     </p>
   </div>
-  <div v-if="this.selected.card.uid.length > 0">
+  <div v-if="this.selected.card.uid">
     <p>You selected {{this.selected.card.headline}}</p>
     <p>Is this the activity/food that you will do/eat?</p>
     <button @click="selectItemToDo($event)">Yes</button>
@@ -41,12 +41,8 @@ export default defineComponent({
       }
     },
     selectItemToDo(e: Event) {
-      if (this.selected.card.uid.length > 0) {
-        // TODO check this logic and assign a type to cardToDo
-        const cardToDo = mapKeys(this.selected.card, (_, key) => key === 'uid' ? 'cardUid' : key)
-        // is renaming this key necessary?
-        cardToDo.datetime = DateTime.now().toString()
-        // TODO Save this data
+      if (this.selected.card.uid) {
+        this.$store.commit('addChosenCard', this.selected.card.uid)
       }
     }
   }
