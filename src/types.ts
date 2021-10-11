@@ -1,4 +1,4 @@
-import firebase from '@/firebase/firebaseSingleton'
+import firebase from "@/firebase/firebaseSingleton"
 
 export interface Card {
   uid: string
@@ -8,14 +8,19 @@ export interface Card {
 
 export interface SwipedCard {
   card: Card
-  swiped: 'left' | 'right'
+  swiped: "left" | "right"
+}
+
+interface ChosenCard {
+  uid: string
+  reviewed: boolean
 }
 
 interface SessionBase {
   uid: string
   cardsSwiped: SwipedCard[]
   user: string
-  chosenCard: null | string
+  chosenCard: ChosenCard
 }
 
 export interface Session extends SessionBase {
@@ -25,3 +30,12 @@ export interface Session extends SessionBase {
 export interface IDBSession extends SessionBase {
   datetime: Date
 }
+
+export const isSession = (
+  session: firebase.firestore.DocumentData | Session
+): session is Session => (session as Session).uid !== undefined
+
+export const isSessionsArray = (
+  sessions: firebase.firestore.DocumentData[] | Session[]
+): sessions is Session[] =>
+  (sessions as Session[]).every((session) => session.uid !== undefined)
