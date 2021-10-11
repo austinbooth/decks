@@ -5,6 +5,7 @@
     <!-- <Counter /> -->
     <!-- <CardTest /> -->
     <CardContainer />
+    <ReviewCard />
   </div>
 </template>
 
@@ -14,6 +15,7 @@ import { defineComponent } from "vue";
 import Counter from "@/components/Counter.vue"
 import CardTest from "@/components/CardTest.vue"
 import CardContainer from "@/components/CardContainer.vue"
+import ReviewCard from "@/views/ReviewCard.vue"
 import { openDB } from 'idb'
 import { createAnonymousUser } from '@/firebase'
 import { DBNAME, USER_STORE_NAME, SWIPING_SESSIONS_STORE_NAME } from '@/indexeddb'
@@ -40,7 +42,8 @@ export default defineComponent({
     // HelloWorld,
     // Counter,
     // CardTest
-    CardContainer
+    CardContainer,
+    ReviewCard,
   },
 });
 </script>
