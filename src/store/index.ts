@@ -14,7 +14,10 @@ const setUpSwipingSession = async() => {
     uid: createdDoc.id,
     datetime: firebaseNowTimestamp,
     cardsSwiped: [],
-    chosenCard: null,
+    chosenCard: {
+      uid: '',
+      reviewed: false
+    },
     user: uid,
   }
   const idbSession: IDBSession = {
@@ -30,7 +33,8 @@ const writeSessionToFirebaseAndIDB = async(session: Session) => {
   const idbSession = {
     ...session,
     datetime: session.datetime.toDate(),
-    cardsSwiped: session.cardsSwiped.map(e => ({...e, card: {...e.card}}))
+    cardsSwiped: session.cardsSwiped.map(e => ({...e, card: {...e.card}})),
+    chosenCard: {...session.chosenCard}
   }
   await writeSessionToidb(idbSession)
   await setSessionInFireStore(session)
@@ -58,7 +62,10 @@ export default createStore({
       await writeSessionToFirebaseAndIDB(currentState.currentSession)
     },
     addChosenCard: async(currentState, chosenCardId: string) => {
-      currentState.currentSession.chosenCard = chosenCardId
+      currentState.currentSession.chosenCard = {
+        uid: chosenCardId,
+        reviewed: false
+      }
       await writeSessionToFirebaseAndIDB(currentState.currentSession)
     }
   },
