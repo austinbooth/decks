@@ -1,6 +1,6 @@
 import firebase from '@/firebase/firebaseSingleton'
 import { writeUserToidb, USER_STORE_NAME, SWIPING_SESSIONS_STORE_NAME } from '@/indexeddb'
-import { Session } from '@/types'
+import { Session, isSessionsArray } from '@/types'
 
 export const getAllCardsInDeck = async(deck = 'breakfast-deck') => {
   try {
@@ -53,5 +53,18 @@ export const setSessionInFireStore = async(session: Session) => {
     await db.collection(`/${SWIPING_SESSIONS_STORE_NAME}/`).doc(session.uid).set(session)
   } catch (err) {
     console.error(err)
+  }
+}
+
+export const getUnreviewedSessions = async(): Promise<Session[]> => {
+  try {
+    const db = firebase.firestore()
+    const snapshot = await db.collection(`/${SWIPING_SESSIONS_STORE_NAME}/`)
+      .where('chosenCard.reviewed', '==', false).get()
+    const sessions = snapshot.docs.map((doc) => doc.data())
+    return isSessionsArray(sessions) ? sessions : []
+  } catch (err) {
+    console.error(err)
+    return []
   }
 }
