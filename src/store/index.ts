@@ -1,18 +1,19 @@
 import { createStore } from "vuex";
 import { SWIPING_SESSIONS_STORE_NAME, writeSessionToidb, getUserFromidb } from '@/indexeddb'
 import firebase from '@/firebase/firebaseSingleton'
-import { setSessionInFireStore } from "@/firebase";
-import { SwipedCard, Session, IDBSession } from '@/types'
+import { setSessionInFireStore } from "@/firebase"
+import { DateTime } from "luxon";
+import { SwipedCard, Session } from '@/types'
 
 const setUpSwipingSession = async() => {
   const db = firebase.firestore()
-  const firebaseNowTimestamp = firebase.firestore.Timestamp.now()
+  // const firebaseNowTimestamp = firebase.firestore.Timestamp.now()
   const createdDoc = await db.collection(`/${SWIPING_SESSIONS_STORE_NAME}/`).doc()
   // get uid
   const uid = await getUserFromidb()
   const session: Session = {
     uid: createdDoc.id,
-    datetime: firebaseNowTimestamp,
+    datetime: DateTime.now(),
     cardsSwiped: [],
     chosenCard: {
       uid: '',
@@ -20,23 +21,21 @@ const setUpSwipingSession = async() => {
     },
     user: uid,
   }
-  const idbSession: IDBSession = {
+  // const idbSession: IDBSession = {
+  //   ...session,
+  //   datetime: session.datetime.toDate()
+  // }
+  const firebaseSession = {
     ...session,
-    datetime: session.datetime.toDate()
+    datetime: firebase.firestore.Timestamp.fromDate(session.datetime.toJSDate())
   }
-  createdDoc.set(session)
-  writeSessionToidb(idbSession)
+  createdDoc.set(firebaseSession) // use firebase fn for this
+  writeSessionToidb(session)
   return session
 }
 
 const writeSessionToFirebaseAndIDB = async(session: Session) => {
-  const idbSession = {
-    ...session,
-    datetime: session.datetime.toDate(),
-    cardsSwiped: session.cardsSwiped.map(e => ({...e, card: {...e.card}})),
-    chosenCard: {...session.chosenCard}
-  }
-  await writeSessionToidb(idbSession)
+  await writeSessionToidb(session)
   await setSessionInFireStore(session)
 }
 

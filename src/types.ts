@@ -1,4 +1,5 @@
 import firebase from "@/firebase/firebaseSingleton"
+import { DateTime } from "luxon"
 
 export interface Card {
   uid: string
@@ -16,20 +17,28 @@ interface ChosenCard {
   reviewed: boolean
 }
 
-interface SessionBase {
+export interface Session {
   uid: string
-  cardsSwiped: SwipedCard[]
   user: string
+  datetime: DateTime
+  cardsSwiped: SwipedCard[]
   chosenCard: ChosenCard
 }
 
-export interface Session extends SessionBase {
-  datetime: firebase.firestore.Timestamp
-}
+// export interface Session extends SessionBase {
+//   datetime: firebase.firestore.Timestamp
+// }
 
-export interface IDBSession extends SessionBase {
-  datetime: Date
-}
+// export interface IDBSession extends SessionBase {
+//   datetime: Date
+// }
+
+// TODO:
+// Harmonise these types that differ only in datetime type
+//  - make SessionBase -> Session and add 'datetime: DateTime' prop
+//  - add converter for saving/loading sessions from firebase (DateTime -> Firebase Timestamp)
+//  - change the writeSessionToidb fn to change DateTime -> Date type
+// create types for Session, SessionWithChosenCard, SessionWithReviewedChosenCard
 
 export const isSession = (
   session: firebase.firestore.DocumentData | Session

@@ -1,4 +1,5 @@
-import firebase from '@/firebase/firebaseSingleton'
+import firebase from './firebaseSingleton'
+import { sessionConverter } from './converters'
 import { writeUserToidb, USER_STORE_NAME, SWIPING_SESSIONS_STORE_NAME } from '@/indexeddb'
 import { Session, isSessionsArray } from '@/types'
 
@@ -49,8 +50,11 @@ export const setUserInFireStore = async <T extends User>(userId: string, user: T
 
 export const setSessionInFireStore = async(session: Session) => {
   try {
+    console.log('Setting session...')
     const db = firebase.firestore()
-    await db.collection(`/${SWIPING_SESSIONS_STORE_NAME}/`).doc(session.uid).set(session)
+    await db.collection(`/${SWIPING_SESSIONS_STORE_NAME}/`)
+      .withConverter(sessionConverter)
+      .doc(session.uid).set(session)
   } catch (err) {
     console.error(err)
   }
