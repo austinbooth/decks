@@ -2,6 +2,7 @@ import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router"
 import Home from "../views/Home.vue"
 import ChooseChosenCard from "../views/ChooseChosenCard.vue"
 import Session from "../views/Session.vue"
+import ReviewCard from "../views/ReviewCard.vue"
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -18,7 +19,13 @@ const routes: Array<RouteRecordRaw> = [
     path: "/review",
     name: "Review",
     component: ChooseChosenCard
-  }
+  },
+  {
+    path: "/review_card",
+    name: "ReviewCard",
+    component: ReviewCard,
+    props: true
+  },
 ];
 
 const router = createRouter({
