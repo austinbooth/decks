@@ -1,6 +1,6 @@
 import firebase from './firebaseSingleton'
 import { sessionConverter } from './converters'
-import { writeUserToidb, USER_STORE_NAME, SWIPING_SESSIONS_STORE_NAME } from '@/indexeddb'
+import { writeUserToidb, USER_STORE_NAME, SWIPING_SESSIONS_STORE_NAME, getUserFromidb } from '@/indexeddb'
 import { Session, isSessionsWithChosenCardArray, SessionWithChosenCard, User } from '@/types'
 
 export const getAllCardsInDeck = async(deck = 'breakfast-deck') => {
@@ -68,5 +68,24 @@ export const getUnreviewedSessions = async(user: string): Promise<SessionWithCho
   } catch (err) {
     console.error(err)
     return []
+  }
+}
+
+export const getSessionForUser = async(sessionUid: string): Promise<Session | SessionWithChosenCard | string> => {
+  try {
+    const user = await getUserFromidb()
+    if (!user) {
+      throw new Error('No user id')
+    }
+    const db = firebase.firestore()
+    const snapshot = await db.collection(`/${SWIPING_SESSIONS_STORE_NAME}/`)
+      .withConverter(sessionConverter)
+      .where('uid', '==', sessionUid)
+      .get()
+    const [sessionData] = snapshot.docs.map(doc => doc.data())
+    return sessionData.user === user ? sessionData : 'You are unauthorised to view this data.'
+  } catch (err) {
+    console.error(err)
+    throw(err)
   }
 }
