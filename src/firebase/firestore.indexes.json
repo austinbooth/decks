@@ -1,0 +1,13 @@
+{
+    "indexes": [
+      { 
+        "collectionGroup": "sessions",
+        "queryScope": "COLLECTION",
+        "fields": [
+          { "fieldPath": "user", "order": "ASCENDING" },
+          { "fieldPath": "chosenCard", "order": "ASCENDING" }
+        ]
+      }
+    ],
+    "fieldOverrides": []
+  }
