@@ -1,5 +1,6 @@
 <script lang="ts">
 import { defineComponent } from "vue"
+import { getUserFromidb } from '@/indexeddb'
 import { getUnreviewedSessions } from "@/firebase"
 import { Session } from "@/types"
 
@@ -12,7 +13,8 @@ export default defineComponent({
   },
   mounted() {
     (async () => {
-      const unreviewedSessions = await getUnreviewedSessions()
+      const user = await getUserFromidb()
+      const unreviewedSessions = await getUnreviewedSessions(user)
       console.log(unreviewedSessions)
       if (unreviewedSessions) {
         this.$data.unreviewedSessions = unreviewedSessions

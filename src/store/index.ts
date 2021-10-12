@@ -3,7 +3,7 @@ import { SWIPING_SESSIONS_STORE_NAME, writeSessionToidb, getUserFromidb } from '
 import firebase from '@/firebase/firebaseSingleton'
 import { setSessionInFireStore } from "@/firebase"
 import { DateTime } from "luxon";
-import { SwipedCard, Session } from '@/types'
+import { SwipedCard, Session, SessionWithChosenCard } from '@/types'
 
 const setUpSwipingSession = async() => {
   const db = firebase.firestore()
@@ -15,10 +15,6 @@ const setUpSwipingSession = async() => {
     uid: createdDoc.id,
     datetime: DateTime.now(),
     cardsSwiped: [],
-    chosenCard: {
-      uid: '',
-      reviewed: false
-    },
     user: uid,
   }
   // const idbSession: IDBSession = {
@@ -47,7 +43,7 @@ export default createStore({
     cards: [],
     currentSession: {
       cardsSwiped: [] as SwipedCard[],
-    } as Session,
+    } as Session | SessionWithChosenCard,
   },
   mutations: {
     // increment: (currentState, value) => currentState.counter += value
@@ -61,11 +57,12 @@ export default createStore({
       await writeSessionToFirebaseAndIDB(currentState.currentSession)
     },
     addChosenCard: async(currentState, chosenCardId: string) => {
-      currentState.currentSession.chosenCard = {
-        uid: chosenCardId,
-        reviewed: false
+      if (chosenCardId) {
+        (currentState.currentSession as SessionWithChosenCard).chosenCard = chosenCardId
+        await writeSessionToFirebaseAndIDB(currentState.currentSession)
+      } else {
+        throw new Error('No chosen card ID')
       }
-      await writeSessionToFirebaseAndIDB(currentState.currentSession)
     }
   },
   actions: {},

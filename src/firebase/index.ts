@@ -1,7 +1,7 @@
 import firebase from './firebaseSingleton'
 import { sessionConverter } from './converters'
 import { writeUserToidb, USER_STORE_NAME, SWIPING_SESSIONS_STORE_NAME } from '@/indexeddb'
-import { Session, isSessionsArray } from '@/types'
+import { Session, isSessionsWithChosenCardArray, SessionWithChosenCard, User } from '@/types'
 
 export const getAllCardsInDeck = async(deck = 'breakfast-deck') => {
   try {
@@ -20,7 +20,7 @@ export const createAnonymousUser = async() => {
     const firebaseNowTimestamp = firebase.firestore.Timestamp.now()
     const createdDoc = await db.collection(`/users/`).doc()
     if (createdDoc.id) {
-      const initialUserData = {
+      const initialUserData: User = {
         created: firebaseNowTimestamp,
         uid: createdDoc.id,
       }
@@ -35,14 +35,10 @@ export const createAnonymousUser = async() => {
   }
 }
 
-interface User {
-  uid: string
-}
-
-export const setUserInFireStore = async <T extends User>(userId: string, user: T, merge: boolean) => {
+export const setUserInFireStore = async(user: User) => {
   try {
     const db = firebase.firestore()
-    await db.collection(`/users/`).doc(userId).set(user, {merge})
+    await db.collection(`/users/`).doc(user.uid).set(user)
   } catch (err) {
     console.error(err)
   }
@@ -60,13 +56,15 @@ export const setSessionInFireStore = async(session: Session) => {
   }
 }
 
-export const getUnreviewedSessions = async(): Promise<Session[]> => {
+export const getUnreviewedSessions = async(user: string): Promise<SessionWithChosenCard[]> => {
   try {
     const db = firebase.firestore()
     const snapshot = await db.collection(`/${SWIPING_SESSIONS_STORE_NAME}/`)
-      .where('chosenCard.reviewed', '==', false).get()
-    const sessions = snapshot.docs.map((doc) => doc.data())
-    return isSessionsArray(sessions) ? sessions : []
+      .withConverter(sessionConverter)
+      .where('user', '==', user)
+      .where('chosenCard', '!=', '').get()
+    const sessions = snapshot.docs.map((doc) => doc.data()).filter(session => !('review' in session))
+    return isSessionsWithChosenCardArray(sessions) ? sessions : []
   } catch (err) {
     console.error(err)
     return []

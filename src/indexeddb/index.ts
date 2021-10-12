@@ -1,5 +1,5 @@
 import { openDB } from "idb"
-import { Session } from '@/types'
+import { Session, SessionWithChosenCard, isSessionWithChosenCard, IDBSession, IDBSessionWithChosenCard } from '@/types'
 
 export const DBNAME = 'decks'
 export const USER_STORE_NAME = 'user'
@@ -10,12 +10,14 @@ export const writeUserToidb = async(uid: string) => {
   await db.put(USER_STORE_NAME, uid, 'uid')
 }
 
-export const writeSessionToidb = async(session: Session) => {
-  const idbSession = {
+export const writeSessionToidb = async(session: Session | SessionWithChosenCard) => {
+  const idbSession: IDBSession = {
     ...session,
     datetime: session.datetime.toJSDate(),
     cardsSwiped: session.cardsSwiped.map(e => ({...e, card: {...e.card}})),
-    chosenCard: {...session.chosenCard}
+  }
+  if (isSessionWithChosenCard(session)) {
+    (idbSession as IDBSessionWithChosenCard).chosenCard = session.chosenCard
   }
   const db = await openDB(DBNAME)
   await db.put(SWIPING_SESSIONS_STORE_NAME, idbSession)

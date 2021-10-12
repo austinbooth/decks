@@ -1,6 +1,6 @@
 import firebase from '@/firebase/firebaseSingleton'
 import { DateTime } from 'luxon'
-import { Session } from '@/types'
+import { Session, SessionWithChosenCard } from '@/types'
 
 const toFirestoreSession = (session: Session): firebase.firestore.DocumentData => {
   const firebaseSession = {
@@ -19,11 +19,11 @@ const fromFirestoreSession = (firebaseSession: firebase.firestore.DocumentData):
 }
 
 export const sessionConverter = {
-    toFirestore(session: Session): firebase.firestore.DocumentData {
+    toFirestore(session: Session | SessionWithChosenCard): firebase.firestore.DocumentData {
       return toFirestoreSession(session)
     },
     fromFirestore(snapshot: firebase.firestore.QueryDocumentSnapshot, options: firebase.firestore.SnapshotOptions)
-    : Session {
+    : Session | SessionWithChosenCard {
       const data = snapshot.data(options)
       if (data) {
         return fromFirestoreSession(data)
