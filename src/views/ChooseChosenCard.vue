@@ -44,6 +44,7 @@ export default defineComponent({
       if (this.selected.card.uid) {
         this.$store.commit('addChosenCard', this.selected.card.uid)
       }
+      this.$router.push('/')
     }
   }
 })
