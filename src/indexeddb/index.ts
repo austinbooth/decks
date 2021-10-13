@@ -1,5 +1,6 @@
 import { openDB } from "idb"
-import { Session, SessionWithChosenCard, isSessionWithChosenCard, IDBSession, IDBSessionWithChosenCard } from '@/types'
+import { Session, SessionWithChosenCard, isSessionWithChosenCard } from '@/types'
+import { IDBSession, IDBSessionWithChosenCard } from '@/types/indexeddbTypes'
 
 export const DBNAME = 'decks'
 export const USER_STORE_NAME = 'user'
