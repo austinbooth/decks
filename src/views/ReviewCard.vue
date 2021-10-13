@@ -8,12 +8,27 @@
   <div v-if="this.$data.error">
     {{ this.$data.error }}
   </div>
+  <div class="emoji_card_container">
+    <EmojiCard
+      v-for="rating in this.$data.reviewEmojiKeysArray"
+      :rating="rating"
+      :key="'rating_card_'+rating"
+      @set_rating_value="setRatingValue"
+    />
+  </div>
+  <div v-if="this.$data.reviewValue" class="chosen_rating_container">
+      <p>You chose</p>
+      <EmojiCard :rating="this.$data.reviewValue" :key="this.$data.reviewValue" @set_rating_value="setRatingValue" />
+      <button @click="submitReview">Submit</button>
+  </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue"
+import EmojiCard from '@/components/session_review/EmojiCard.vue'
 import { getSessionForUser } from '@/firebase'
 import { SessionWithChosenCard, isSessionWithChosenCard, SwipedCard } from "@/types"
+import { ReviewEmojiKeys, ReviewEmojiLookup } from '@/components/session_review/EmojiCard.vue'
 
 export default defineComponent({
   name: 'ReviewCard',
@@ -28,6 +43,8 @@ export default defineComponent({
       fullSession,
       cardToReview,
       error,
+      reviewValue: 0,
+      reviewEmojiKeysArray: Object.keys(ReviewEmojiLookup).map(k => +k)
     }
   },
   mounted() {
@@ -49,6 +66,29 @@ export default defineComponent({
         this.$data.error = 'Error, no session id.'
       }
     })()
+  },
+  methods: {
+    setRatingValue(value: ReviewEmojiKeys) {
+      this.$data.reviewValue = value
+    },
+    submitReview() {
+      //TODO
+    }
+  },
+  components: {
+    EmojiCard,
   }
 })
 </script>
+<style scoped>
+  .emoji_card_container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+  }
+  .chosen_rating_container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+  }
+</style>
