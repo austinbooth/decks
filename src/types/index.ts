@@ -28,7 +28,7 @@ export interface SessionWithChosenCard extends Session {
   chosenCard: string
 }
 
-interface Review {
+export interface Review {
   datetime: DateTime
   reviewValue: number // TODO narrow to specific values
 }
@@ -65,3 +65,7 @@ export const isSessionsWithChosenCardArray = (
 export const isSessionWithChosenCard = (
   session: Session | SessionWithChosenCard
 ): session is SessionWithChosenCard => (session as SessionWithChosenCard).chosenCard !== undefined
+
+export const isSessionWithReview = (
+  session: Session | SessionWithChosenCard | SessionWithReview
+): session is SessionWithReview => (session as SessionWithReview).review !== undefined
