@@ -1,7 +1,7 @@
 import firebase from './firebaseSingleton'
 import { sessionConverter } from './converters'
 import { writeUserToidb, USER_STORE_NAME, SWIPING_SESSIONS_STORE_NAME, getUserFromidb } from '@/indexeddb'
-import { Session, isSessionsWithChosenCardArray, SessionWithChosenCard, User } from '@/types'
+import { Session, isSessionsWithChosenCardArray, SessionWithChosenCard, SessionWithReview, User } from '@/types'
 
 export const getAllCardsInDeck = async(deck = 'breakfast-deck') => {
   try {
@@ -44,7 +44,7 @@ export const setUserInFireStore = async(user: User) => {
   }
 }
 
-export const setSessionInFireStore = async(session: Session) => {
+export const setSessionInFireStore = async(session: Session | SessionWithChosenCard | SessionWithReview) => {
   try {
     console.log('Setting session...')
     const db = firebase.firestore()
@@ -71,7 +71,7 @@ export const getUnreviewedSessions = async(user: string): Promise<SessionWithCho
   }
 }
 
-export const getSessionForUser = async(sessionUid: string): Promise<Session | SessionWithChosenCard | string> => {
+export const getSessionForUser = async(sessionUid: string): Promise<Session | SessionWithChosenCard | SessionWithReview | string> => {
   try {
     const user = await getUserFromidb()
     if (!user) {
