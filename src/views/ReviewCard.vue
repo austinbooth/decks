@@ -26,8 +26,9 @@
 <script lang="ts">
 import { defineComponent } from "vue"
 import EmojiCard, { ReviewEmojiKeys, ReviewEmojiLookup } from '@/components/session_review/EmojiCard.vue'
-import { getSessionForUser } from '@/firebase'
-import { SessionWithChosenCard, isSessionWithChosenCard, SwipedCard } from "@/types"
+import { getSessionForUser, setSessionInFireStore } from '@/firebase'
+import { SessionWithChosenCard, isSessionWithChosenCard, SwipedCard, SessionWithReview } from "@/types"
+import { DateTime } from "luxon"
 
 export default defineComponent({
   name: 'ReviewCard',
@@ -70,8 +71,24 @@ export default defineComponent({
     setRatingValue(value: ReviewEmojiKeys) {
       this.$data.reviewValue = value
     },
-    submitReview() {
-      //TODO
+    async submitReview() {
+      if (this.fullSession) {
+        const sessionWithReview: SessionWithReview = {
+          ...this.fullSession,
+          review: {
+            datetime: DateTime.now().toUTC(),
+            reviewValue: this.$data.reviewValue
+          }
+        }
+        try {
+          await setSessionInFireStore(sessionWithReview)
+          // also save in indexeddb - extract out types into a seperate file (like firestore types)
+          // then redirect to home
+        } catch (err) {
+          console.log(err)
+          this.$data.error = err
+        }
+      }
     }
   },
   components: {
