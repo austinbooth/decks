@@ -27,6 +27,7 @@
 import { defineComponent } from "vue"
 import EmojiCard, { ReviewEmojiKeys, ReviewEmojiLookup } from '@/components/session_review/EmojiCard.vue'
 import { getSessionForUser, setSessionInFireStore } from '@/firebase'
+import { writeSessionToidb } from '@/indexeddb'
 import { SessionWithChosenCard, isSessionWithChosenCard, SwipedCard, SessionWithReview } from "@/types"
 import { DateTime } from "luxon"
 
@@ -82,8 +83,8 @@ export default defineComponent({
         }
         try {
           await setSessionInFireStore(sessionWithReview)
-          // also save in indexeddb - extract out types into a seperate file (like firestore types)
-          // then redirect to home
+          await writeSessionToidb(sessionWithReview)
+          this.$router.push('/')
         } catch (err) {
           console.log(err)
           this.$data.error = err
