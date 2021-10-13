@@ -25,10 +25,9 @@
 
 <script lang="ts">
 import { defineComponent } from "vue"
-import EmojiCard from '@/components/session_review/EmojiCard.vue'
+import EmojiCard, { ReviewEmojiKeys, ReviewEmojiLookup } from '@/components/session_review/EmojiCard.vue'
 import { getSessionForUser } from '@/firebase'
 import { SessionWithChosenCard, isSessionWithChosenCard, SwipedCard } from "@/types"
-import { ReviewEmojiKeys, ReviewEmojiLookup } from '@/components/session_review/EmojiCard.vue'
 
 export default defineComponent({
   name: 'ReviewCard',
