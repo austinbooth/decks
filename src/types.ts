@@ -30,7 +30,11 @@ export interface SessionWithChosenCard extends Session {
 
 interface Review {
   datetime: DateTime
-  review: string // TODO narrow to emojis
+  review: number // TODO narrow to specific values
+}
+
+interface IDBReview extends Omit<Review, 'datetime'> {
+  datetime: Date
 }
 
 export interface SessionWithReview extends SessionWithChosenCard {
@@ -43,6 +47,10 @@ export interface IDBSession extends Omit<Session, 'datetime'> {
 
 export interface IDBSessionWithChosenCard extends Omit<SessionWithChosenCard, 'datetime'> {
   datetime: Date
+}
+
+export interface IDBSessionWithReview extends IDBSessionWithChosenCard {
+  review: IDBReview
 }
 
 export const isSession = (
