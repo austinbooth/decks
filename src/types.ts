@@ -30,7 +30,7 @@ export interface SessionWithChosenCard extends Session {
 
 interface Review {
   datetime: DateTime
-  review: number // TODO narrow to specific values
+  reviewValue: number // TODO narrow to specific values
 }
 
 interface IDBReview extends Omit<Review, 'datetime'> {
