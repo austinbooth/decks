@@ -1,12 +1,12 @@
 <template>
+  <div v-if="this.$data.error">
+    {{ this.$data.error }}
+  </div>
   <div v-if="this.$data.cardToReview">
-    <p>{{ this.$data.cardToReview.card.headline }}</p>
+    <h2>{{ this.$data.cardToReview.card.headline }}</h2>
     <p>{{ this.$data.cardToReview.card.description }}</p>
     <p>You chose this on {{ this.$data.fullSession.datetime.toFormat('dd LLL') }}</p>
     <h3>Your review:</h3>
-  </div>
-  <div v-if="this.$data.error">
-    {{ this.$data.error }}
   </div>
   <div class="emoji_card_container">
     <EmojiCard
@@ -17,9 +17,9 @@
     />
   </div>
   <div v-if="this.$data.reviewValue" class="chosen_rating_container">
-      <p>You chose</p>
+      <h3>You chose</h3>
       <EmojiCard :rating="this.$data.reviewValue" :key="this.$data.reviewValue" @set_rating_value="setRatingValue" />
-      <button @click="submitReview">Submit</button>
+      <button @click="submitReview" class="submit">Submit</button>
   </div>
 </template>
 
@@ -107,5 +107,9 @@ export default defineComponent({
       display: flex;
       flex-direction: column;
       align-items: center;
+      margin-top: 6px;
+  }
+  .submit {
+    margin-top: 20px;
   }
 </style>
