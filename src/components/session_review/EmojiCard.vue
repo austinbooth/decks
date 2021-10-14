@@ -55,7 +55,9 @@ export default defineComponent({
     margin: 0 5px;
     width: 100%;
     max-width: 100px;
-
+  }
+  .container:active {
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.1);
   }
   .emoji {
     font-size: 2rem;
