@@ -1,13 +1,12 @@
 <template>
   <div class="home">
-    <button @click="this.$router.push('session')">View deck</button>
-    <ReviewCardsList />
+    <CardContainer />
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue"
-import ReviewCardsList from '@/components/ReviewCardsList.vue'
+import { defineComponent } from "vue";
+import CardContainer from "@/components/CardContainer.vue"
 import { openDB } from 'idb'
 import { createAnonymousUser } from '@/firebase'
 import { DBNAME, USER_STORE_NAME, SWIPING_SESSIONS_STORE_NAME } from '@/indexeddb'
@@ -29,9 +28,9 @@ import { DBNAME, USER_STORE_NAME, SWIPING_SESSIONS_STORE_NAME } from '@/indexedd
 })()
 
 export default defineComponent({
-  name: "Home",
+  name: "Session",
   components: {
-    ReviewCardsList,
+    CardContainer,
   },
 });
 </script>

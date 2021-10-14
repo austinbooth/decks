@@ -1,6 +1,7 @@
-import firebase from '@/firebase/firebaseSingleton'
-import { writeUserToidb, USER_STORE_NAME, SWIPING_SESSIONS_STORE_NAME } from '@/indexeddb'
-import { Session } from '@/types'
+import firebase from './firebaseSingleton'
+import { sessionConverter } from './converters'
+import { writeUserToidb, USER_STORE_NAME, SWIPING_SESSIONS_STORE_NAME, getUserFromidb } from '@/indexeddb'
+import { Session, isSessionsWithChosenCardArray, SessionWithChosenCard, SessionWithReview, User } from '@/types'
 
 export const getAllCardsInDeck = async(deck = 'breakfast-deck') => {
   try {
@@ -19,7 +20,7 @@ export const createAnonymousUser = async() => {
     const firebaseNowTimestamp = firebase.firestore.Timestamp.now()
     const createdDoc = await db.collection(`/users/`).doc()
     if (createdDoc.id) {
-      const initialUserData = {
+      const initialUserData: User = {
         created: firebaseNowTimestamp,
         uid: createdDoc.id,
       }
@@ -34,24 +35,57 @@ export const createAnonymousUser = async() => {
   }
 }
 
-interface User {
-  uid: string
-}
-
-export const setUserInFireStore = async <T extends User>(userId: string, user: T, merge: boolean) => {
+export const setUserInFireStore = async(user: User) => {
   try {
     const db = firebase.firestore()
-    await db.collection(`/users/`).doc(userId).set(user, {merge})
+    await db.collection(`/users/`).doc(user.uid).set(user)
   } catch (err) {
     console.error(err)
   }
 }
 
-export const setSessionInFireStore = async(session: Session) => {
+export const setSessionInFireStore = async(session: Session | SessionWithChosenCard | SessionWithReview) => {
   try {
+    console.log('Setting session...')
     const db = firebase.firestore()
-    await db.collection(`/${SWIPING_SESSIONS_STORE_NAME}/`).doc(session.uid).set(session)
+    await db.collection(`/${SWIPING_SESSIONS_STORE_NAME}/`)
+      .withConverter(sessionConverter)
+      .doc(session.uid).set(session)
   } catch (err) {
     console.error(err)
+  }
+}
+
+export const getUnreviewedSessions = async(user: string): Promise<SessionWithChosenCard[]> => {
+  try {
+    const db = firebase.firestore()
+    const snapshot = await db.collection(`/${SWIPING_SESSIONS_STORE_NAME}/`)
+      .withConverter(sessionConverter)
+      .where('user', '==', user)
+      .where('chosenCard', '!=', '').get()
+    const sessions = snapshot.docs.map((doc) => doc.data()).filter(session => !('review' in session))
+    return isSessionsWithChosenCardArray(sessions) ? sessions : []
+  } catch (err) {
+    console.error(err)
+    return []
+  }
+}
+
+export const getSessionForUser = async(sessionUid: string): Promise<Session | SessionWithChosenCard | SessionWithReview | string> => {
+  try {
+    const user = await getUserFromidb()
+    if (!user) {
+      throw new Error('No user id')
+    }
+    const db = firebase.firestore()
+    const snapshot = await db.collection(`/${SWIPING_SESSIONS_STORE_NAME}/`)
+      .withConverter(sessionConverter)
+      .where('uid', '==', sessionUid)
+      .get()
+    const [sessionData] = snapshot.docs.map(doc => doc.data())
+    return sessionData.user === user ? sessionData : 'You are unauthorised to view this data.'
+  } catch (err) {
+    console.error(err)
+    throw(err)
   }
 }
