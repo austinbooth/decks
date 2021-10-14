@@ -1,6 +1,9 @@
 <template>
-  <div class="home">
-    <button @click="this.$router.push('session')">View deck</button>
+  <div>
+    <div class="home-container">
+      <h3>Cards:</h3>
+      <button @click="this.$router.push('session')">View breakfast deck</button>
+    </div>
     <ReviewCardsList />
   </div>
 </template>
@@ -35,3 +38,12 @@ export default defineComponent({
   },
 });
 </script>
+<style scoped>
+  .home-container {
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    width: 90%;
+    margin: 18px auto 0;
+    padding: 8px 3px 24px;
+    border-radius: 5px;
+  }
+</style>
