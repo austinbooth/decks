@@ -14,6 +14,10 @@ const setUpSwipingSession = async() => {
   const session: Session = {
     uid: createdDoc.id,
     datetime: DateTime.now(),
+    deck: {
+      uid: 'zRe6Gi7DUXNRDeNK10Ed', // hardcode for now
+      type: 'publisher'
+    },
     cardsSwiped: [],
     user: uid,
   }

@@ -21,6 +21,7 @@ export interface Session {
   uid: string
   user: string
   datetime: DateTime
+  deck: DeckRef
   cardsSwiped: SwipedCard[]
 }
 
@@ -35,6 +36,17 @@ export interface Review {
 
 export interface SessionWithReview extends SessionWithChosenCard {
   review: Review
+}
+
+export interface Deck {
+  uid: string
+  name: string
+  cards: Card[]
+}
+
+export interface DeckRef {
+  uid: string
+  type: 'publisher' | 'user'
 }
 
 export const isSession = (
