@@ -21,10 +21,6 @@ const setUpSwipingSession = async() => {
     cardsSwiped: [],
     user: uid,
   }
-  // const idbSession: IDBSession = {
-  //   ...session,
-  //   datetime: session.datetime.toDate()
-  // }
   const firebaseSession = {
     ...session,
     datetime: firebase.firestore.Timestamp.fromDate(session.datetime.toJSDate())
