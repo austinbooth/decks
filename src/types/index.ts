@@ -49,6 +49,12 @@ export interface DeckRef {
   type: 'publisher' | 'user'
 }
 
+export interface DeckInfo {
+  uid: string
+  name: string
+  description: string
+}
+
 export const isSession = (
   session: firebase.firestore.DocumentData | Session
 ): session is Session => (session as Session).uid !== undefined

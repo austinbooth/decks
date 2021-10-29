@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="home-container">
-      <h3>Cards:</h3>
+      <h3>Decks:</h3>
       <button @click="this.$router.push('session')">View breakfast deck</button>
     </div>
     <ReviewCardsList />
@@ -12,8 +12,9 @@
 import { defineComponent } from "vue"
 import ReviewCardsList from '@/components/ReviewCardsList.vue'
 import { openDB } from 'idb'
-import { createAnonymousUser } from '@/firebase'
+import { createAnonymousUser, getAllPublisherDecks } from '@/firebase'
 import { DBNAME, USER_STORE_NAME, SWIPING_SESSIONS_STORE_NAME } from '@/indexeddb'
+import { DeckInfo } from '@/types'
 
 (async () => {
   const version = 1
@@ -36,6 +37,19 @@ export default defineComponent({
   components: {
     ReviewCardsList,
   },
+  data() {
+    const publisherDecks: DeckInfo[] = []
+    return {
+      publisherDecks
+    }
+  },
+  mounted() {
+    (async() => {
+      const decks = await getAllPublisherDecks()
+      console.log('-->>', decks)
+      this.$data.publisherDecks = decks ?? []
+    })()
+  }
 });
 </script>
 <style scoped>
