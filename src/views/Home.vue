@@ -65,17 +65,17 @@ export default defineComponent({
 </script>
 <style scoped>
 .home-container {
-  display: flex
-  flex-direction: column
-  align-items: center
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2)
-  width: 90%
-  margin: 18px auto 0
-  padding: 8px 3px 24px
-  border-radius: 5px
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+  width: 90%;
+  margin: 18px auto 0;
+  padding: 8px 3px 24px;
+  border-radius: 5px;
 }
 .deck-btn {
-  width: fit-content
-  margin: 4px 0
+  width: fit-content;
+  margin: 4px 0;
 }
 </style>
