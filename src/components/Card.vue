@@ -50,11 +50,11 @@ export default defineComponent({
   methods: {
     dragHandler(e: TouchEvent) {
       if (this.card) {
-        const boundingRect = this.card.getBoundingClientRect();
+        const cardBoundingRect = this.card.getBoundingClientRect()
         this.card_x_coord =
-          e.targetTouches[0].clientX - boundingRect.width / 2 + "px";
+          e.targetTouches[0].clientX - cardBoundingRect.width / 2 + "px"
         this.card_y_coord =
-          e.targetTouches[0].clientY - boundingRect.height / 2 + "px";
+          e.targetTouches[0].clientY - cardBoundingRect.height / 2 + "px"
       }
     },
     dragStartHandler(e: TouchEvent) {
@@ -76,7 +76,6 @@ export default defineComponent({
           console.log(deltaPc)
           if (deltaPc > 0.2) {
             this.feedbackAfterSwipe('right')
-            //
             const swipedCard: SwipedCard = {
               card: {...this.chosenCard},
               swiped: 'right',
