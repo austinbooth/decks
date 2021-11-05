@@ -44,6 +44,7 @@ export default createStore({
     currentSession: {
       cardsSwiped: [] as SwipedCard[],
     } as Session | SessionWithChosenCard,
+    chosenDeck: '',
   },
   mutations: {
     // increment: (currentState, value) => currentState.counter += value
@@ -63,7 +64,8 @@ export default createStore({
       } else {
         throw new Error('No chosen card ID')
       }
-    }
+    },
+    setChosenDeck: (currentState, deck) => currentState.chosenDeck = deck
   },
   actions: {},
   modules: {},

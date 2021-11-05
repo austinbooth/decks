@@ -6,7 +6,7 @@
         v-for="deck in $data.publisherDecks"
         :key="deck.uid"
         class="deck-btn"
-        @click="this.$router.push('session')"
+        @click="chooseDeck(deck.uid)"
       >
         {{ deck.name }}
       </button>
@@ -61,6 +61,12 @@ export default defineComponent({
       this.$data.publisherDecks = decks ?? []
     })()
   },
+  methods: {
+    chooseDeck(deck: string) {
+      this.$store.commit('setChosenDeck', deck)
+      this.$router.push('session')
+    }
+  }
 })
 </script>
 <style scoped>
