@@ -5,7 +5,7 @@ import { setSessionInFireStore } from "@/firebase"
 import { DateTime } from "luxon";
 import { SwipedCard, Session, SessionWithChosenCard } from '@/types'
 
-const setUpSwipingSession = async() => {
+const setUpSwipingSession = async(chosenDeck: string) => {
   const db = firebase.firestore()
   // const firebaseNowTimestamp = firebase.firestore.Timestamp.now()
   const createdDoc = await db.collection(`/${SWIPING_SESSIONS_STORE_NAME}/`).doc()
@@ -15,7 +15,7 @@ const setUpSwipingSession = async() => {
     uid: createdDoc.id,
     datetime: DateTime.now(),
     deck: {
-      uid: 'zRe6Gi7DUXNRDeNK10Ed', // hardcode for now
+      uid: chosenDeck,
       type: 'publisher'
     },
     cardsSwiped: [],
@@ -51,8 +51,9 @@ export default createStore({
     setCards: (currentState, value) => currentState.cards = value,
     addSwipedCard: async(currentState, newCard) => {
       if (currentState.currentSession.cardsSwiped.length === 0) {
-        const session = await setUpSwipingSession()
+        const session = await setUpSwipingSession(currentState.chosenDeck)
         currentState.currentSession = session
+        console.log('started session:', session.uid)
       }
       currentState.currentSession.cardsSwiped.push(newCard)
       await writeSessionToFirebaseAndIDB(currentState.currentSession)

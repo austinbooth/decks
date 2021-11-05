@@ -14,10 +14,10 @@ export const getAllPublisherDecks = async(): Promise<DeckInfo[] | undefined>  =>
   }
 }
 
-export const getAllCardsInDeck = async(deck = 'breakfast-deck') => {
+export const getAllCardsInDeck = async(deck = 'zRe6Gi7DUXNRDeNK10Ed') => {
   try {
     const db = firebase.firestore()
-    const snapshot = await db.collection(`/${deck}/`).get()
+    const snapshot = await db.collection(`/decks/${deck}/cards/`).get()
     const cards = snapshot.docs.map((doc) => doc.data())
     return cards
   } catch (err) {
