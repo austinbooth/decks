@@ -1,6 +1,6 @@
 <template>
-  <div class="container">
-    <h3 v-if="this.$data.unreviewedSessions.length > 0">Review your chosen cards:</h3>
+  <div class="container" v-if="this.$data.unreviewedSessions.length > 0">
+    <h3>Review your chosen cards:</h3>
     <div
       v-for="session in this.$data.unreviewedSessions"
       :key="session.uid"
