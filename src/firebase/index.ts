@@ -2,13 +2,35 @@ import firebase from './firebaseSingleton'
 import { sessionConverter } from './converters'
 import { writeUserToidb, USER_STORE_NAME, SWIPING_SESSIONS_STORE_NAME, getUserFromidb } from '@/indexeddb'
 import { Session, isSessionsWithChosenCardArray, SessionWithChosenCard, SessionWithReview, User, DeckInfo } from '@/types'
+import * as T from 'io-ts'
+import * as E from 'fp-ts/Either'
 
-export const getAllPublisherDecks = async(): Promise<DeckInfo[] | undefined>  => {
+const DeckInfoIOTS = T.type({
+  uid: T.string,
+  name: T.string,
+  description: T.string,
+})
+type DeckInfoIOTS = T.TypeOf<typeof DeckInfoIOTS>
+
+const DeckInfoArrayIOTS = T.array(DeckInfoIOTS)
+type DeckInfoArrayIOTS = T.TypeOf<typeof DeckInfoArrayIOTS>
+
+export const getAllPublisherDecks = async(): Promise<DeckInfoArrayIOTS | undefined>  => {
   try {
     const db = firebase.firestore()
     const snapshot = await db.collection(`/decks/`).get()
-    const decks = snapshot.docs.map((doc) => doc.data() as DeckInfo)
-    return decks
+    const decks = snapshot.docs.map((doc) => doc.data())
+    
+    const decodedDecks = decks.map(deck => {
+      const decoded = DeckInfoIOTS.decode(deck)
+      if (E.isRight(decoded)) {
+        return decoded.right
+      }
+      console.error('Invalid deck:', deck)
+    })
+
+    const filtered = decodedDecks.filter(DeckInfoIOTS.is)
+    return filtered
   } catch (err) {
     console.error(err)
   }
