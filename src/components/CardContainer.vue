@@ -23,7 +23,7 @@ export default defineComponent({
     const store = useStore()
     onMounted(async () => {
       try {
-        const cardsData = await getAllCardsInDeck()
+        const cardsData = await getAllCardsInDeck(store.state.chosenDeck)
         cards.value = cardsData
         store.commit("setCards", cardsData)
       } catch (err) {

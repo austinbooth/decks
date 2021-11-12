@@ -15,6 +15,9 @@ export const writeSessionToidb = async(session: Session | SessionWithChosenCard 
   const idbSession: IDBSession = {
     ...session,
     datetime: session.datetime.toJSDate(),
+    deck: {
+      ...session.deck
+    },
     cardsSwiped: session.cardsSwiped.map(e => ({...e, card: {...e.card}})),
   }
   if (isSessionWithChosenCard(session)) {

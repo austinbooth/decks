@@ -1,12 +1,23 @@
 import firebase from './firebaseSingleton'
 import { sessionConverter } from './converters'
 import { writeUserToidb, USER_STORE_NAME, SWIPING_SESSIONS_STORE_NAME, getUserFromidb } from '@/indexeddb'
-import { Session, isSessionsWithChosenCardArray, SessionWithChosenCard, SessionWithReview, User } from '@/types'
+import { Session, isSessionsWithChosenCardArray, SessionWithChosenCard, SessionWithReview, User, DeckInfo } from '@/types'
 
-export const getAllCardsInDeck = async(deck = 'breakfast-deck') => {
+export const getAllPublisherDecks = async(): Promise<DeckInfo[] | undefined>  => {
   try {
     const db = firebase.firestore()
-    const snapshot = await db.collection(`/${deck}/`).get()
+    const snapshot = await db.collection(`/decks/`).get()
+    const decks = snapshot.docs.map((doc) => doc.data() as DeckInfo)
+    return decks
+  } catch (err) {
+    console.error(err)
+  }
+}
+
+export const getAllCardsInDeck = async(deck = 'zRe6Gi7DUXNRDeNK10Ed') => {
+  try {
+    const db = firebase.firestore()
+    const snapshot = await db.collection(`/decks/${deck}/cards/`).get()
     const cards = snapshot.docs.map((doc) => doc.data())
     return cards
   } catch (err) {

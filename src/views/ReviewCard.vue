@@ -85,7 +85,7 @@ export default defineComponent({
           await setSessionInFireStore(sessionWithReview)
           await writeSessionToidb(sessionWithReview)
           this.$router.push('/')
-        } catch (err) {
+        } catch (err: any) {
           console.log(err)
           this.$data.error = err
         }
