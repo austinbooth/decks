@@ -15,33 +15,51 @@ type DeckInfoIOTS = T.TypeOf<typeof DeckInfoIOTS>
 const DeckInfoArrayIOTS = T.array(DeckInfoIOTS)
 type DeckInfoArrayIOTS = T.TypeOf<typeof DeckInfoArrayIOTS>
 
+const CardIOTS = T.type({
+  uid: T.string,
+  headline: T.string,
+  description: T.string,
+})
+type CardIOTS = T.TypeOf<typeof CardIOTS>
+
+const CardArrayIOTS = T.array(CardIOTS)
+type CardArrayIOTS = T.TypeOf<typeof CardArrayIOTS>
+
+const validateDbResponse = <T extends T.TypeC<any>, U extends firebase.firestore.DocumentData[]>(wanted: T, actual: U) => {
+  const ArrayT = T.array(wanted)
+  type ArrayT = T.TypeOf<typeof ArrayT>
+  const decodedDecks = actual.map(item => {
+    const decoded = wanted.decode(item)
+    if (E.isRight(decoded)) {
+      return decoded.right
+    }
+    console.error('Invalid item:', item)
+  })
+  const filtered = decodedDecks.filter(wanted.is) as ArrayT
+  return filtered
+}
+
 export const getAllPublisherDecks = async(): Promise<DeckInfoArrayIOTS | undefined>  => {
   try {
     const db = firebase.firestore()
     const snapshot = await db.collection(`/decks/`).get()
     const decks = snapshot.docs.map((doc) => doc.data())
-    
-    const decodedDecks = decks.map(deck => {
-      const decoded = DeckInfoIOTS.decode(deck)
-      if (E.isRight(decoded)) {
-        return decoded.right
-      }
-      console.error('Invalid deck:', deck)
-    })
 
-    const filtered = decodedDecks.filter(DeckInfoIOTS.is)
-    return filtered
+    const validated = validateDbResponse(DeckInfoIOTS, decks)
+    return validated
   } catch (err) {
     console.error(err)
   }
 }
 
-export const getAllCardsInDeck = async(deck = 'zRe6Gi7DUXNRDeNK10Ed') => {
+export const getAllCardsInDeck = async(deck = 'zRe6Gi7DUXNRDeNK10Ed'): Promise<CardArrayIOTS | undefined> => {
   try {
     const db = firebase.firestore()
     const snapshot = await db.collection(`/decks/${deck}/cards/`).get()
     const cards = snapshot.docs.map((doc) => doc.data())
-    return cards
+
+    const validated = validateDbResponse(CardIOTS, cards)
+    return validated
   } catch (err) {
     console.error(err)
   }
