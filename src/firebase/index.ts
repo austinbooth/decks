@@ -26,7 +26,7 @@ type CardIOTS = T.TypeOf<typeof CardIOTS>
 const CardArrayIOTS = T.array(CardIOTS)
 type CardArrayIOTS = T.TypeOf<typeof CardArrayIOTS>
 
-const validateDbResponse = <M extends T.TypeC<any> | T.UnionC<any>, D extends firebase.firestore.DocumentData[]>(Model: M, data: D) => {
+const validateDbResponse = <M extends T.TypeC<any> | T.UnionC<any> |  T.IntersectionC<any>, D extends firebase.firestore.DocumentData[]>(Model: M, data: D) => {
   const ArrayT = T.array(Model)
   type ArrayT = T.TypeOf<typeof ArrayT>
   const decodedDecks = data.map(item => {
@@ -107,15 +107,15 @@ export const setSessionInFireStore = async(session: Session | SessionWithChosenC
   }
 }
 
-export const getUnreviewedSessions = async(user: string): Promise<SessionWithChosenCard[]> => {
+export const getUnreviewedSessions = async(user: string): Promise<SessionWithChosenCardArrayIOTS> => {
   try {
     const db = firebase.firestore()
     const snapshot = await db.collection(`/${SWIPING_SESSIONS_STORE_NAME}/`)
-      .withConverter(sessionConverter)
       .where('user', '==', user)
       .where('chosenCard', '!=', '').get()
     const sessions = snapshot.docs.map((doc) => doc.data()).filter(session => !('review' in session))
-    return isSessionsWithChosenCardArray(sessions) ? sessions : []
+    const sessionsValidated = validateDbResponse(SessionWithChosenCardIOTS, sessions)
+    return sessionsValidated
   } catch (err) {
     console.error(err)
     return []
@@ -163,6 +163,9 @@ const SessionWithChosenCardIOTS = T.intersection([SessionIOTS, T.type({
 })])
 type SessionWithChosenCardIOTS = T.TypeOf<typeof SessionWithChosenCardIOTS>
 
+const SessionWithChosenCardArrayIOTS = T.array(SessionWithChosenCardIOTS)
+type SessionWithChosenCardArrayIOTS = T.TypeOf<typeof SessionWithChosenCardArrayIOTS>
+
 const ReviewT = T.type({
   datetime: LuxonDateTimeT,
   reviewValue: T.union([T.literal(1), T.literal(2), T.literal(3), T.literal(4)])
@@ -181,13 +184,9 @@ export const getSessionForUser = async(sessionUid: string): Promise<Session | Se
     }
     const db = firebase.firestore()
     const snapshot = await db.collection(`/${SWIPING_SESSIONS_STORE_NAME}/`)
-      .withConverter(sessionConverter)
       .where('uid', '==', sessionUid)
       .get()
-    const sessionData = snapshot.docs.map(doc => doc.data()).map(session => ({
-      ...session,
-      datetime: LuxonDateTimeT.encode(session.datetime) // TODO: Change sessionConverter so can avoid converting here this
-    }))
+    const sessionData = snapshot.docs.map(doc => doc.data())
     const [SessionDataValidated] = validateDbResponse(T.union([
       SessionIOTS, SessionWithChosenCardIOTS, SessionWithReviewIOTS
     ]), sessionData)
