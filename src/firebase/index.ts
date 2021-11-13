@@ -176,7 +176,7 @@ const SessionWithReviewIOTS = T.intersection([SessionWithChosenCardIOTS, T.type(
 type SessionWithReviewIOTS = T.TypeOf<typeof SessionWithReviewIOTS>
 
 // TODO: This function is only being used by ReviewCard to fetch SessionWithChosenCard - narrow types?
-export const getSessionForUser = async(sessionUid: string): Promise<Session | SessionWithChosenCard | SessionWithReview | string> => {
+export const getSessionForUser = async(sessionUid: string): Promise<SessionIOTS | SessionWithChosenCardIOTS | SessionWithReviewIOTS | string> => {
   try {
     const user = await getUserFromidb()
     if (!user) {
