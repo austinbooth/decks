@@ -4,6 +4,7 @@ import { writeUserToidb, USER_STORE_NAME, SWIPING_SESSIONS_STORE_NAME, getUserFr
 import { Session, isSessionsWithChosenCardArray, SessionWithChosenCard, SessionWithReview, User, DeckInfo } from '@/types'
 import * as T from 'io-ts'
 import * as E from 'fp-ts/Either'
+import { DateTime } from "luxon"
 
 const DeckInfoIOTS = T.type({
   uid: T.string,
@@ -25,17 +26,17 @@ type CardIOTS = T.TypeOf<typeof CardIOTS>
 const CardArrayIOTS = T.array(CardIOTS)
 type CardArrayIOTS = T.TypeOf<typeof CardArrayIOTS>
 
-const validateDbResponse = <T extends T.TypeC<any>, U extends firebase.firestore.DocumentData[]>(wanted: T, actual: U) => {
-  const ArrayT = T.array(wanted)
+const validateDbResponse = <M extends T.TypeC<any> | T.UnionC<any>, D extends firebase.firestore.DocumentData[]>(Model: M, data: D) => {
+  const ArrayT = T.array(Model)
   type ArrayT = T.TypeOf<typeof ArrayT>
-  const decodedDecks = actual.map(item => {
-    const decoded = wanted.decode(item)
+  const decodedDecks = data.map(item => {
+    const decoded = Model.decode(item)
     if (E.isRight(decoded)) {
       return decoded.right
     }
     console.error('Invalid item:', item)
   })
-  const filtered = decodedDecks.filter(wanted.is) as ArrayT
+  const filtered = decodedDecks.filter(Model.is) as ArrayT
   return filtered
 }
 
@@ -44,7 +45,6 @@ export const getAllPublisherDecks = async(): Promise<DeckInfoArrayIOTS | undefin
     const db = firebase.firestore()
     const snapshot = await db.collection(`/decks/`).get()
     const decks = snapshot.docs.map((doc) => doc.data())
-
     const validated = validateDbResponse(DeckInfoIOTS, decks)
     return validated
   } catch (err) {
@@ -122,6 +122,57 @@ export const getUnreviewedSessions = async(user: string): Promise<SessionWithCho
   }
 }
 
+const LuxonDateTimeT = new T.Type<DateTime, firebase.firestore.Timestamp, unknown>(
+  'LuxonDateTimeT',
+  (u: unknown): u is DateTime => u instanceof DateTime,
+  (u: unknown, c: T.Context) => {
+    if (!(u instanceof firebase.firestore.Timestamp)) {
+      return T.failure(u, c)
+    }
+    return T.success(DateTime.fromJSDate(u.toDate()).setZone('Europe/London'))
+  },
+  (a: DateTime) => firebase.firestore.Timestamp.fromDate(a.toJSDate()),
+)
+
+const DeckRefIOTS = T.type({
+  uid: T.string,
+  type: T.union([T.literal('publisher'), T.literal('user')])
+})
+type DeckRefIOTS = T.TypeOf<typeof DeckInfoIOTS>
+
+const SwipedCardIOTS = T.type({
+  card: CardIOTS,
+  swiped: T.union([T.literal('left'), T.literal('right')])
+})
+type SwipedCardIOTS = T.TypeOf<typeof SwipedCardIOTS>
+
+const SwipedCardArrayIOTS = T.array(SwipedCardIOTS)
+type SwipedCardArrayIOTS = T.TypeOf<typeof SwipedCardArrayIOTS>
+
+const SessionIOTS = T.type({
+  uid: T.string,
+  user: T.string,
+  datetime: LuxonDateTimeT,
+  deck: DeckRefIOTS,
+  cardsSwiped: SwipedCardArrayIOTS,
+})
+type SessionIOTS = T.TypeOf<typeof SessionIOTS>
+
+const SessionWithChosenCardIOTS = T.intersection([SessionIOTS, T.type({
+  chosenCard: T.string
+})])
+type SessionWithChosenCardIOTS = T.TypeOf<typeof SessionWithChosenCardIOTS>
+
+const ReviewT = T.type({
+  datetime: LuxonDateTimeT,
+  reviewValue: T.union([T.literal(1), T.literal(2), T.literal(3), T.literal(4)])
+})
+type ReviewT = T.TypeOf<typeof ReviewT>
+
+const SessionWithReviewIOTS = T.intersection([SessionWithChosenCardIOTS, T.type({review: ReviewT})])
+type SessionWithReviewIOTS = T.TypeOf<typeof SessionWithReviewIOTS>
+
+// TODO: This function is only being used by ReviewCard to fetch SessionWithChosenCard - narrow types?
 export const getSessionForUser = async(sessionUid: string): Promise<Session | SessionWithChosenCard | SessionWithReview | string> => {
   try {
     const user = await getUserFromidb()
@@ -133,8 +184,14 @@ export const getSessionForUser = async(sessionUid: string): Promise<Session | Se
       .withConverter(sessionConverter)
       .where('uid', '==', sessionUid)
       .get()
-    const [sessionData] = snapshot.docs.map(doc => doc.data())
-    return sessionData.user === user ? sessionData : 'You are unauthorised to view this data.'
+    const sessionData = snapshot.docs.map(doc => doc.data()).map(session => ({
+      ...session,
+      datetime: LuxonDateTimeT.encode(session.datetime) // TODO: Change sessionConverter so can avoid converting here this
+    }))
+    const [SessionDataValidated] = validateDbResponse(T.union([
+      SessionIOTS, SessionWithChosenCardIOTS, SessionWithReviewIOTS
+    ]), sessionData)
+    return SessionDataValidated.user === user ? SessionDataValidated : 'You are unauthorised to view this data.'
   } catch (err) {
     console.error(err)
     throw(err)
