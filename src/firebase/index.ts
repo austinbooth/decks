@@ -40,6 +40,16 @@ const validateDbResponse = <M extends T.TypeC<any> | T.UnionC<any> |  T.Intersec
   return filtered
 }
 
+const validateAndEncodeDbData = <M extends T.TypeC<any> |  T.UnionC<any>, D>(Model: M, data: D) => {
+  try {
+    const encoded = Model.encode(data)
+    console.log('Encoded:', encoded)
+    return encoded
+  } catch (err) {
+    console.error('Encoding - invalid data:', data)
+  }
+}
+
 export const getAllPublisherDecks = async(): Promise<DeckInfoArrayIOTS | undefined>  => {
   try {
     const db = firebase.firestore()
@@ -98,10 +108,14 @@ export const setUserInFireStore = async(user: User) => {
 export const setSessionInFireStore = async(session: Session | SessionWithChosenCard | SessionWithReview) => {
   try {
     console.log('Setting session...')
-    const db = firebase.firestore()
-    await db.collection(`/${SWIPING_SESSIONS_STORE_NAME}/`)
-      .withConverter(sessionConverter)
-      .doc(session.uid).set(session)
+    const encodedSession = validateAndEncodeDbData(
+      T.union([SessionIOTS, SessionWithChosenCardIOTS, SessionWithReviewIOTS]),
+      session
+    )
+    if (encodedSession) {
+      const db = firebase.firestore()
+      await db.collection(`/${SWIPING_SESSIONS_STORE_NAME}/`).doc(encodedSession.uid).set(encodedSession)
+    }
   } catch (err) {
     console.error(err)
   }
