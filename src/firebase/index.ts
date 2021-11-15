@@ -6,25 +6,25 @@ import * as E from 'fp-ts/Either'
 import { DateTime } from "luxon"
 import { cloneDeep } from 'lodash'
 
-const DeckInfoIOTS = T.type({
+const DeckInfoT = T.type({
   uid: T.string,
   name: T.string,
   description: T.string,
 })
-type DeckInfoIOTS = T.TypeOf<typeof DeckInfoIOTS>
+type DeckInfoT = T.TypeOf<typeof DeckInfoT>
 
-const DeckInfoArrayIOTS = T.array(DeckInfoIOTS)
-type DeckInfoArrayIOTS = T.TypeOf<typeof DeckInfoArrayIOTS>
+const DeckInfoArrayT = T.array(DeckInfoT)
+type DeckInfoArrayT = T.TypeOf<typeof DeckInfoArrayT>
 
-const CardIOTS = T.type({
+const CardT = T.type({
   uid: T.string,
   headline: T.string,
   description: T.string,
 })
-type CardIOTS = T.TypeOf<typeof CardIOTS>
+type CardT = T.TypeOf<typeof CardT>
 
-const CardArrayIOTS = T.array(CardIOTS)
-type CardArrayIOTS = T.TypeOf<typeof CardArrayIOTS>
+const CardArrayT = T.array(CardT)
+type CardArrayT = T.TypeOf<typeof CardArrayT>
 
 const validateDbResponse = <M extends T.TypeC<any> | T.UnionC<any> |  T.IntersectionC<any>, D extends firebase.firestore.DocumentData[]>(Model: M, data: D) => {
   const ArrayT = T.array(Model)
@@ -50,25 +50,25 @@ const validateAndEncodeDbData = <M extends T.TypeC<any> |  T.UnionC<any> | T.Int
   }
 }
 
-export const getAllPublisherDecks = async(): Promise<DeckInfoArrayIOTS | undefined>  => {
+export const getAllPublisherDecks = async(): Promise<DeckInfoArrayT | undefined>  => {
   try {
     const db = firebase.firestore()
     const snapshot = await db.collection(`/decks/`).get()
     const decks = snapshot.docs.map((doc) => doc.data())
-    const validated = validateDbResponse(DeckInfoIOTS, decks)
+    const validated = validateDbResponse(DeckInfoT, decks)
     return validated
   } catch (err) {
     console.error(err)
   }
 }
 
-export const getAllCardsInDeck = async(deck = 'zRe6Gi7DUXNRDeNK10Ed'): Promise<CardArrayIOTS | undefined> => {
+export const getAllCardsInDeck = async(deck = 'zRe6Gi7DUXNRDeNK10Ed'): Promise<CardArrayT | undefined> => {
   try {
     const db = firebase.firestore()
     const snapshot = await db.collection(`/decks/${deck}/cards/`).get()
     const cards = snapshot.docs.map((doc) => doc.data())
 
-    const validated = validateDbResponse(CardIOTS, cards)
+    const validated = validateDbResponse(CardT, cards)
     return validated
   } catch (err) {
     console.error(err)
@@ -109,9 +109,9 @@ export const setSessionInFireStore = async(session: Session | SessionWithChosenC
   try {
     console.log('Setting session...')
     const encodedSession = validateAndEncodeDbData(
-      SessionWithReviewIOTS.is(session) ? SessionWithReviewIOTS
-        : SessionWithChosenCardIOTS.is(session) ? SessionWithChosenCardIOTS
-          : SessionIOTS,
+      SessionWithReviewT.is(session) ? SessionWithReviewT
+        : SessionWithChosenCardT.is(session) ? SessionWithChosenCardT
+          : SessionBaseT,
       session
     )
     if (encodedSession) {
@@ -123,14 +123,14 @@ export const setSessionInFireStore = async(session: Session | SessionWithChosenC
   }
 }
 
-export const getUnreviewedSessions = async(user: string): Promise<SessionWithChosenCardArrayIOTS> => {
+export const getUnreviewedSessions = async(user: string): Promise<SessionWithChosenCardArrayT> => {
   try {
     const db = firebase.firestore()
     const snapshot = await db.collection(`/${SWIPING_SESSIONS_STORE_NAME}/`)
       .where('user', '==', user)
       .where('chosenCard', '!=', '').get()
     const sessions = snapshot.docs.map((doc) => doc.data()).filter(session => !('review' in session))
-    const sessionsValidated = validateDbResponse(SessionWithChosenCardIOTS, sessions)
+    const sessionsValidated = validateDbResponse(SessionWithChosenCardT, sessions)
     return sessionsValidated
   } catch (err) {
     console.error(err)
@@ -150,37 +150,37 @@ const LuxonDateTimeT = new T.Type<DateTime, firebase.firestore.Timestamp, unknow
   (a: DateTime) => firebase.firestore.Timestamp.fromDate(a.toJSDate()),
 )
 
-const DeckRefIOTS = T.type({
+const DeckRefT = T.type({
   uid: T.string,
   type: T.union([T.literal('publisher'), T.literal('user')])
 })
-type DeckRefIOTS = T.TypeOf<typeof DeckInfoIOTS>
+type DeckRefT = T.TypeOf<typeof DeckInfoT>
 
-const SwipedCardIOTS = T.type({
-  card: CardIOTS,
+const SwipedCardT = T.type({
+  card: CardT,
   swiped: T.union([T.literal('left'), T.literal('right')])
 })
-type SwipedCardIOTS = T.TypeOf<typeof SwipedCardIOTS>
+type SwipedCardT = T.TypeOf<typeof SwipedCardT>
 
-const SwipedCardArrayIOTS = T.array(SwipedCardIOTS)
-type SwipedCardArrayIOTS = T.TypeOf<typeof SwipedCardArrayIOTS>
+const SwipedCardArrayT = T.array(SwipedCardT)
+type SwipedCardArrayT = T.TypeOf<typeof SwipedCardArrayT>
 
-const SessionIOTS = T.type({
+const SessionBaseT = T.type({
   uid: T.string,
   user: T.string,
   datetime: LuxonDateTimeT,
-  deck: DeckRefIOTS,
-  cardsSwiped: SwipedCardArrayIOTS,
+  deck: DeckRefT,
+  cardsSwiped: SwipedCardArrayT,
 })
-type SessionIOTS = T.TypeOf<typeof SessionIOTS>
+type SessionBaseT = T.TypeOf<typeof SessionBaseT>
 
-const SessionWithChosenCardIOTS = T.intersection([SessionIOTS, T.type({
+const SessionWithChosenCardT = T.intersection([SessionBaseT, T.type({
   chosenCard: T.string
 })])
-type SessionWithChosenCardIOTS = T.TypeOf<typeof SessionWithChosenCardIOTS>
+type SessionWithChosenCardT = T.TypeOf<typeof SessionWithChosenCardT>
 
-const SessionWithChosenCardArrayIOTS = T.array(SessionWithChosenCardIOTS)
-type SessionWithChosenCardArrayIOTS = T.TypeOf<typeof SessionWithChosenCardArrayIOTS>
+const SessionWithChosenCardArrayT = T.array(SessionWithChosenCardT)
+type SessionWithChosenCardArrayT = T.TypeOf<typeof SessionWithChosenCardArrayT>
 
 const ReviewT = T.type({
   datetime: LuxonDateTimeT,
@@ -188,11 +188,11 @@ const ReviewT = T.type({
 })
 type ReviewT = T.TypeOf<typeof ReviewT>
 
-const SessionWithReviewIOTS = T.intersection([SessionWithChosenCardIOTS, T.type({review: ReviewT})])
-type SessionWithReviewIOTS = T.TypeOf<typeof SessionWithReviewIOTS>
+const SessionWithReviewT = T.intersection([SessionWithChosenCardT, T.type({review: ReviewT})])
+type SessionWithReviewT = T.TypeOf<typeof SessionWithReviewT>
 
 // TODO: This function is only being used by ReviewCard to fetch SessionWithChosenCard - narrow types?
-export const getSessionForUser = async(sessionUid: string): Promise<SessionIOTS | SessionWithChosenCardIOTS | SessionWithReviewIOTS | string> => {
+export const getSessionForUser = async(sessionUid: string): Promise<SessionBaseT | SessionWithChosenCardT | SessionWithReviewT | string> => {
   try {
     const user = await getUserFromidb()
     if (!user) {
@@ -204,7 +204,7 @@ export const getSessionForUser = async(sessionUid: string): Promise<SessionIOTS 
       .get()
     const sessionData = snapshot.docs.map(doc => doc.data())
     const [SessionDataValidated] = validateDbResponse(T.union([
-      SessionIOTS, SessionWithChosenCardIOTS, SessionWithReviewIOTS
+      SessionBaseT, SessionWithChosenCardT, SessionWithReviewT
     ]), sessionData)
     return SessionDataValidated.user === user ? SessionDataValidated : 'You are unauthorised to view this data.'
   } catch (err) {
