@@ -1,10 +1,10 @@
 import firebase from './firebaseSingleton'
-import { sessionConverter } from './converters'
 import { writeUserToidb, USER_STORE_NAME, SWIPING_SESSIONS_STORE_NAME, getUserFromidb } from '@/indexeddb'
 import { Session, isSessionsWithChosenCardArray, SessionWithChosenCard, SessionWithReview, User, DeckInfo } from '@/types'
 import * as T from 'io-ts'
 import * as E from 'fp-ts/Either'
 import { DateTime } from "luxon"
+import { cloneDeep } from 'lodash'
 
 const DeckInfoIOTS = T.type({
   uid: T.string,
@@ -40,7 +40,7 @@ const validateDbResponse = <M extends T.TypeC<any> | T.UnionC<any> |  T.Intersec
   return filtered
 }
 
-const validateAndEncodeDbData = <M extends T.TypeC<any> |  T.UnionC<any>, D>(Model: M, data: D) => {
+const validateAndEncodeDbData = <M extends T.TypeC<any> |  T.UnionC<any> | T.IntersectionC<any>, D>(Model: M, data: D) => {
   try {
     const encoded = Model.encode(data)
     console.log('Encoded:', encoded)
@@ -109,7 +109,9 @@ export const setSessionInFireStore = async(session: Session | SessionWithChosenC
   try {
     console.log('Setting session...')
     const encodedSession = validateAndEncodeDbData(
-      T.union([SessionIOTS, SessionWithChosenCardIOTS, SessionWithReviewIOTS]),
+      SessionWithReviewIOTS.is(session) ? SessionWithReviewIOTS
+        : SessionWithChosenCardIOTS.is(session) ? SessionWithChosenCardIOTS
+          : SessionIOTS,
       session
     )
     if (encodedSession) {
