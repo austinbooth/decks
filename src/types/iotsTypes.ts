@@ -2,7 +2,6 @@ import * as T from 'io-ts'
 import { DateTime } from 'luxon'
 import firebase from '@/firebase/firebaseSingleton'
 
-
 export const DeckInfoT = T.type({
   uid: T.string,
   name: T.string,
@@ -53,13 +52,14 @@ export type SwipedCardArrayT = T.TypeOf<typeof SwipedCardArrayT>
 export const SessionBaseT = T.type({
   uid: T.string,
   user: T.string,
-  datetime: LuxonDateTimeT,
   deck: DeckRefT,
   cardsSwiped: SwipedCardArrayT,
 })
-export type SessionBaseT = T.TypeOf<typeof SessionBaseT>
 
-export const SessionWithChosenCardT = T.intersection([SessionBaseT, T.type({
+export const SessionT = T.intersection([SessionBaseT, T.type({ datetime: LuxonDateTimeT })])
+export type SessionT = T.TypeOf<typeof SessionT>
+
+export const SessionWithChosenCardT = T.intersection([SessionT, T.type({
   chosenCard: T.string
 })])
 export type SessionWithChosenCardT = T.TypeOf<typeof SessionWithChosenCardT>
@@ -67,10 +67,12 @@ export type SessionWithChosenCardT = T.TypeOf<typeof SessionWithChosenCardT>
 export const SessionWithChosenCardArrayT = T.array(SessionWithChosenCardT)
 export type SessionWithChosenCardArrayT = T.TypeOf<typeof SessionWithChosenCardArrayT>
 
-export const ReviewT = T.type({
-  datetime: LuxonDateTimeT,
+export const ReviewBaseT = T.type({
   reviewValue: T.union([T.literal(1), T.literal(2), T.literal(3), T.literal(4)])
 })
+export type ReviewBaseT = T.TypeOf<typeof ReviewBaseT>
+
+export const ReviewT = T.intersection([ReviewBaseT, T.type({ datetime: LuxonDateTimeT })])
 export type ReviewT = T.TypeOf<typeof ReviewT>
 
 export const SessionWithReviewT = T.intersection([SessionWithChosenCardT, T.type({review: ReviewT})])

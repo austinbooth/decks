@@ -90,7 +90,7 @@ export const setSessionInFireStore = async(session: Session | SessionWithChosenC
     const encodedSession = validateAndEncodeDbData(
       IOTS.SessionWithReviewT.is(session) ? IOTS.SessionWithReviewT
         : IOTS.SessionWithChosenCardT.is(session) ? IOTS.SessionWithChosenCardT
-          : IOTS.SessionBaseT,
+          : IOTS.SessionT,
       session
     )
     if (encodedSession) {
@@ -118,7 +118,7 @@ export const getUnreviewedSessions = async(user: string): Promise<IOTS.SessionWi
 }
 
 // TODO: This function is only being used by ReviewCard to fetch SessionWithChosenCard - narrow types?
-export const getSessionForUser = async(sessionUid: string): Promise<IOTS.SessionBaseT | IOTS.SessionWithChosenCardT | IOTS.SessionWithReviewT | string> => {
+export const getSessionForUser = async(sessionUid: string): Promise<IOTS.SessionT | IOTS.SessionWithChosenCardT | IOTS.SessionWithReviewT | string> => {
   try {
     const user = await getUserFromidb()
     if (!user) {
@@ -130,7 +130,7 @@ export const getSessionForUser = async(sessionUid: string): Promise<IOTS.Session
       .get()
     const sessionData = snapshot.docs.map(doc => doc.data())
     const [SessionDataValidated] = validateDbResponse(T.union([
-      IOTS.SessionBaseT, IOTS.SessionWithChosenCardT, IOTS.SessionWithReviewT
+      IOTS.SessionT, IOTS.SessionWithChosenCardT, IOTS.SessionWithReviewT
     ]), sessionData)
     return SessionDataValidated.user === user ? SessionDataValidated : 'You are unauthorised to view this data.'
   } catch (err) {
