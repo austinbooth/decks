@@ -66,7 +66,12 @@ export default createStore({
         throw new Error('No chosen card ID')
       }
     },
-    setChosenDeck: (currentState, deck) => currentState.chosenDeck = deck
+    setChosenDeck: (currentState, deck) => currentState.chosenDeck = deck,
+    clearSessionData: (currentState) => {
+      currentState.currentSession.cardsSwiped = []
+      currentState.chosenDeck = ''
+      currentState.cards = []
+    }
   },
   actions: {},
   modules: {},
