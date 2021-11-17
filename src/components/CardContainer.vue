@@ -14,7 +14,7 @@ import { getAllCardsInDeck } from "../firebase";
 import Card from "@/components/Card.vue";
 import { useStore } from "vuex";
 import shuffle from "lodash/shuffle";
-import { Card as CardType } from "@/types";
+import { CardT } from "@/types/iotsTypes";
 
 export default defineComponent({
   setup() {
@@ -33,7 +33,7 @@ export default defineComponent({
       }
     });
 
-    const endOfDeckCard: CardType = {
+    const endOfDeckCard: CardT = {
       uid: "END",
       headline: "End",
       description: "You've reached the end of the deck.",

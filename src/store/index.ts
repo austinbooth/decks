@@ -3,7 +3,7 @@ import { SWIPING_SESSIONS_STORE_NAME, writeSessionToidb, getUserFromidb } from '
 import firebase from '@/firebase/firebaseSingleton'
 import { setSessionInFireStore } from "@/firebase"
 import { DateTime } from "luxon";
-import { SwipedCard, Session, SessionWithChosenCard } from '@/types'
+import { SessionT, SessionWithChosenCardT, SwipedCardArrayT } from '@/types/iotsTypes'
 
 const setUpSwipingSession = async(chosenDeck: string) => {
   const db = firebase.firestore()
@@ -11,7 +11,7 @@ const setUpSwipingSession = async(chosenDeck: string) => {
   const createdDoc = await db.collection(`/${SWIPING_SESSIONS_STORE_NAME}/`).doc()
   // get uid
   const uid = await getUserFromidb()
-  const session: Session = {
+  const session: SessionT = {
     uid: createdDoc.id,
     datetime: DateTime.now(),
     deck: {
@@ -30,7 +30,7 @@ const setUpSwipingSession = async(chosenDeck: string) => {
   return session
 }
 
-const writeSessionToFirebaseAndIDB = async(session: Session) => {
+const writeSessionToFirebaseAndIDB = async(session: SessionT) => {
   await writeSessionToidb(session)
   await setSessionInFireStore(session)
 }
@@ -42,8 +42,8 @@ export default createStore({
     CARD_CENTERED_Y_COORD: '5.25%',
     cards: [],
     currentSession: {
-      cardsSwiped: [] as SwipedCard[],
-    } as Session | SessionWithChosenCard,
+      cardsSwiped: [] as SwipedCardArrayT,
+    } as SessionT | SessionWithChosenCardT,
     chosenDeck: '',
   },
   mutations: {
@@ -60,7 +60,7 @@ export default createStore({
     },
     addChosenCard: async(currentState, chosenCardId: string) => {
       if (chosenCardId) {
-        (currentState.currentSession as SessionWithChosenCard).chosenCard = chosenCardId
+        (currentState.currentSession as SessionWithChosenCardT).chosenCard = chosenCardId
         await writeSessionToFirebaseAndIDB(currentState.currentSession)
       } else {
         throw new Error('No chosen card ID')
