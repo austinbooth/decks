@@ -1,25 +1,54 @@
 import firebase from './firebaseSingleton'
-import { sessionConverter } from './converters'
 import { writeUserToidb, USER_STORE_NAME, SWIPING_SESSIONS_STORE_NAME, getUserFromidb } from '@/indexeddb'
-import { Session, isSessionsWithChosenCardArray, SessionWithChosenCard, SessionWithReview, User, DeckInfo } from '@/types'
+import { User } from '@/types'
+import * as T from 'io-ts'
+import * as E from 'fp-ts/Either'
+import * as IOTS from '@/types/iotsTypes'
 
-export const getAllPublisherDecks = async(): Promise<DeckInfo[] | undefined>  => {
+const validateDbResponse = <M extends T.TypeC<any> | T.UnionC<any> |  T.IntersectionC<any>, D extends firebase.firestore.DocumentData[]>(Model: M, data: D) => {
+  const ArrayT = T.array(Model)
+  type ArrayT = T.TypeOf<typeof ArrayT>
+  const decodedDecks = data.map(item => {
+    const decoded = Model.decode(item)
+    if (E.isRight(decoded)) {
+      return decoded.right
+    }
+    console.error('Invalid item:', item)
+  })
+  const filtered = decodedDecks.filter(Model.is) as ArrayT
+  return filtered
+}
+
+const validateAndEncodeDbData = <M extends T.TypeC<any> |  T.UnionC<any> | T.IntersectionC<any>, D>(Model: M, data: D) => {
+  try {
+    const encoded = Model.encode(data)
+    console.log('Encoded:', encoded)
+    return encoded
+  } catch (err) {
+    console.error('Encoding - invalid data:', data)
+  }
+}
+
+export const getAllPublisherDecks = async(): Promise<IOTS.DeckInfoArrayT | undefined>  => {
   try {
     const db = firebase.firestore()
     const snapshot = await db.collection(`/decks/`).get()
-    const decks = snapshot.docs.map((doc) => doc.data() as DeckInfo)
-    return decks
+    const decks = snapshot.docs.map((doc) => doc.data())
+    const validated = validateDbResponse(IOTS.DeckInfoT, decks)
+    return validated
   } catch (err) {
     console.error(err)
   }
 }
 
-export const getAllCardsInDeck = async(deck = 'zRe6Gi7DUXNRDeNK10Ed') => {
+export const getAllCardsInDeck = async(deck = 'zRe6Gi7DUXNRDeNK10Ed'): Promise<IOTS.CardArrayT | undefined> => {
   try {
     const db = firebase.firestore()
     const snapshot = await db.collection(`/decks/${deck}/cards/`).get()
     const cards = snapshot.docs.map((doc) => doc.data())
-    return cards
+
+    const validated = validateDbResponse(IOTS.CardT, cards)
+    return validated
   } catch (err) {
     console.error(err)
   }
@@ -55,34 +84,41 @@ export const setUserInFireStore = async(user: User) => {
   }
 }
 
-export const setSessionInFireStore = async(session: Session | SessionWithChosenCard | SessionWithReview) => {
+export const setSessionInFireStore = async(session: IOTS.SessionT | IOTS.SessionWithChosenCardT | IOTS.SessionWithReviewT) => {
   try {
     console.log('Setting session...')
-    const db = firebase.firestore()
-    await db.collection(`/${SWIPING_SESSIONS_STORE_NAME}/`)
-      .withConverter(sessionConverter)
-      .doc(session.uid).set(session)
+    const encodedSession = validateAndEncodeDbData(
+      IOTS.SessionWithReviewT.is(session) ? IOTS.SessionWithReviewT
+        : IOTS.SessionWithChosenCardT.is(session) ? IOTS.SessionWithChosenCardT
+          : IOTS.SessionT,
+      session
+    )
+    if (encodedSession) {
+      const db = firebase.firestore()
+      await db.collection(`/${SWIPING_SESSIONS_STORE_NAME}/`).doc(encodedSession.uid).set(encodedSession)
+    }
   } catch (err) {
     console.error(err)
   }
 }
 
-export const getUnreviewedSessions = async(user: string): Promise<SessionWithChosenCard[]> => {
+export const getUnreviewedSessions = async(user: string): Promise<IOTS.SessionWithChosenCardArrayT> => {
   try {
     const db = firebase.firestore()
     const snapshot = await db.collection(`/${SWIPING_SESSIONS_STORE_NAME}/`)
-      .withConverter(sessionConverter)
       .where('user', '==', user)
       .where('chosenCard', '!=', '').get()
     const sessions = snapshot.docs.map((doc) => doc.data()).filter(session => !('review' in session))
-    return isSessionsWithChosenCardArray(sessions) ? sessions : []
+    const sessionsValidated = validateDbResponse(IOTS.SessionWithChosenCardT, sessions)
+    return sessionsValidated
   } catch (err) {
     console.error(err)
     return []
   }
 }
 
-export const getSessionForUser = async(sessionUid: string): Promise<Session | SessionWithChosenCard | SessionWithReview | string> => {
+// TODO: This function is only being used by ReviewCard to fetch SessionWithChosenCard - narrow types?
+export const getSessionForUser = async(sessionUid: string): Promise<IOTS.SessionT | IOTS.SessionWithChosenCardT | IOTS.SessionWithReviewT | string> => {
   try {
     const user = await getUserFromidb()
     if (!user) {
@@ -90,11 +126,13 @@ export const getSessionForUser = async(sessionUid: string): Promise<Session | Se
     }
     const db = firebase.firestore()
     const snapshot = await db.collection(`/${SWIPING_SESSIONS_STORE_NAME}/`)
-      .withConverter(sessionConverter)
       .where('uid', '==', sessionUid)
       .get()
-    const [sessionData] = snapshot.docs.map(doc => doc.data())
-    return sessionData.user === user ? sessionData : 'You are unauthorised to view this data.'
+    const sessionData = snapshot.docs.map(doc => doc.data())
+    const [SessionDataValidated] = validateDbResponse(T.union([
+      IOTS.SessionT, IOTS.SessionWithChosenCardT, IOTS.SessionWithReviewT
+    ]), sessionData)
+    return SessionDataValidated.user === user ? SessionDataValidated : 'You are unauthorised to view this data.'
   } catch (err) {
     console.error(err)
     throw(err)

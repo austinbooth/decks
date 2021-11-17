@@ -25,7 +25,7 @@ import {
   USER_STORE_NAME,
   SWIPING_SESSIONS_STORE_NAME,
 } from "@/indexeddb"
-import { DeckInfo } from "@/types"
+import { DeckInfoArrayT } from "@/types/iotsTypes"
 
 (async () => {
   const version = 1
@@ -49,7 +49,7 @@ export default defineComponent({
     ReviewCardsList,
   },
   data() {
-    const publisherDecks: DeckInfo[] = []
+    const publisherDecks: DeckInfoArrayT = []
     return {
       publisherDecks,
     }
@@ -63,6 +63,7 @@ export default defineComponent({
   },
   methods: {
     chooseDeck(deck: string) {
+      this.$store.commit('clearSessionData') // clear any old session data
       this.$store.commit('setChosenDeck', deck)
       this.$router.push('session')
     }

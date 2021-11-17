@@ -21,7 +21,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, ComponentPublicInstance } from "vue"
-import { SwipedCard } from '@/types'
+import { SwipedCardT } from '@/types/iotsTypes'
 
 export default defineComponent({
   props: ['chosenCard', 'endOfDeckCard', 'nextCard'],
@@ -76,7 +76,7 @@ export default defineComponent({
           console.log(deltaPc)
           if (deltaPc > 0.2) {
             this.feedbackAfterSwipe('right')
-            const swipedCard: SwipedCard = {
+            const swipedCard: SwipedCardT = {
               card: {...this.chosenCard},
               swiped: 'right',
             }
@@ -89,7 +89,7 @@ export default defineComponent({
 
           if (deltaPc < -0.15) {
             this.feedbackAfterSwipe('left')
-            const swipedCard: SwipedCard = {
+            const swipedCard: SwipedCardT = {
               card: {...this.chosenCard},
               swiped: 'left'
             }

@@ -1,6 +1,8 @@
 import { openDB } from "idb"
-import { Session, SessionWithChosenCard, SessionWithReview, isSessionWithChosenCard, isSessionWithReview } from '@/types'
-import { IDBSession, IDBSessionWithChosenCard, IDBSessionWithReview } from '@/types/indexeddbTypes'
+import * as E from 'fp-ts/Either'
+import * as IOTS from '@/types/iotsTypes'
+import { IDBSessionT, IDBSessionWithChosenCardT, IDBSessionWithReviewT } from '@/types/indexeddbTypes'
+import { cloneDeep } from "lodash"
 
 export const DBNAME = 'decks'
 export const USER_STORE_NAME = 'user'
@@ -11,26 +13,20 @@ export const writeUserToidb = async(uid: string) => {
   await db.put(USER_STORE_NAME, uid, 'uid')
 }
 
-export const writeSessionToidb = async(session: Session | SessionWithChosenCard | SessionWithReview) => {
-  const idbSession: IDBSession = {
-    ...session,
-    datetime: session.datetime.toJSDate(),
-    deck: {
-      ...session.deck
-    },
-    cardsSwiped: session.cardsSwiped.map(e => ({...e, card: {...e.card}})),
-  }
-  if (isSessionWithChosenCard(session)) {
-    (idbSession as IDBSessionWithChosenCard).chosenCard = session.chosenCard
-  }
-  if (isSessionWithReview(session)) {
-    (idbSession as IDBSessionWithReview).review = {
-      ...session.review,
-      datetime: session.review.datetime.toJSDate()
-    }
-  }
-  const db = await openDB(DBNAME)
-  await db.put(SWIPING_SESSIONS_STORE_NAME, idbSession)
+export const writeSessionToidb = async(session: IOTS.SessionT | IOTS.SessionWithChosenCardT | IOTS.SessionWithReviewT) => {
+  const Model = IOTS.SessionWithReviewT.is(session) ? IDBSessionWithReviewT
+  : IOTS.SessionWithChosenCardT.is(session) ? IDBSessionWithChosenCardT
+    : IDBSessionT
+
+  const decoded = Model.decode(cloneDeep(session))
+  if (E.isRight(decoded)) {
+    const idbSession = decoded.right
+    console.log('Session to be saved to IDB:', idbSession)
+    const db = await openDB(DBNAME)
+    await db.put(SWIPING_SESSIONS_STORE_NAME, idbSession)
+  } else {
+    console.error('Invalid session when writing to IDB:', session)
+  } 
 }
 
 export const getUserFromidb = async() => {

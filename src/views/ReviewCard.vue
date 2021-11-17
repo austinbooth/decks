@@ -25,10 +25,10 @@
 
 <script lang="ts">
 import { defineComponent } from "vue"
-import EmojiCard, { ReviewEmojiKeys, ReviewEmojiLookup } from '@/components/session_review/EmojiCard.vue'
+import EmojiCard, { ReviewEmojiLookup } from '@/components/session_review/EmojiCard.vue'
 import { getSessionForUser, setSessionInFireStore } from '@/firebase'
 import { writeSessionToidb } from '@/indexeddb'
-import { SessionWithChosenCard, isSessionWithChosenCard, SwipedCard, SessionWithReview } from "@/types"
+import { SessionWithChosenCardT, SwipedCardT, SessionWithReviewT, EmojiReviewT } from '@/types/iotsTypes'
 import { DateTime } from "luxon"
 
 export default defineComponent({
@@ -37,14 +37,15 @@ export default defineComponent({
     session: String
   },
   data() {
-    let fullSession: SessionWithChosenCard | undefined
-    let cardToReview: SwipedCard | undefined
+    let fullSession: SessionWithChosenCardT | undefined
+    let cardToReview: SwipedCardT | undefined
     const error = ''
+    let reviewValue: EmojiReviewT
     return {
       fullSession,
       cardToReview,
       error,
-      reviewValue: 0,
+      reviewValue,
       reviewEmojiKeysArray: Object.keys(ReviewEmojiLookup).map(k => +k)
     }
   },
@@ -54,7 +55,7 @@ export default defineComponent({
         const sessionData = await getSessionForUser(this.session)
         if (typeof sessionData === 'string') {
           this.error = sessionData
-        } else if(isSessionWithChosenCard(sessionData)) {
+        } else if(SessionWithChosenCardT.is(sessionData)) {
           this.fullSession = sessionData
           const card = sessionData.cardsSwiped.find(swipedCard => swipedCard.card.uid === sessionData.chosenCard)
           if (card && card.swiped === 'right') {
@@ -69,12 +70,15 @@ export default defineComponent({
     })()
   },
   methods: {
-    setRatingValue(value: ReviewEmojiKeys) {
+    setRatingValue(value: EmojiReviewT) {
       this.$data.reviewValue = value
     },
     async submitReview() {
       if (this.fullSession) {
-        const sessionWithReview: SessionWithReview = {
+        if (!EmojiReviewT.is(this.$data.reviewValue)) {
+          throw new Error('Review value is not 1, 2, 3 or 4')
+        }
+        const sessionWithReview: SessionWithReviewT = {
           ...this.fullSession,
           review: {
             datetime: DateTime.now().toUTC(),
