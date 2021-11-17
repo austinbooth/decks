@@ -67,8 +67,11 @@ export type SessionWithChosenCardT = T.TypeOf<typeof SessionWithChosenCardT>
 export const SessionWithChosenCardArrayT = T.array(SessionWithChosenCardT)
 export type SessionWithChosenCardArrayT = T.TypeOf<typeof SessionWithChosenCardArrayT>
 
+export const EmojiReviewT = T.union([T.literal(1), T.literal(2), T.literal(3), T.literal(4), T.undefined])
+export type EmojiReviewT = T.TypeOf<typeof EmojiReviewT>
+
 export const ReviewBaseT = T.type({
-  reviewValue: T.union([T.literal(1), T.literal(2), T.literal(3), T.literal(4)])
+  reviewValue: EmojiReviewT
 })
 export type ReviewBaseT = T.TypeOf<typeof ReviewBaseT>
 
