@@ -1,6 +1,6 @@
 import firebase from './firebaseSingleton'
 import { writeUserToidb, USER_STORE_NAME, SWIPING_SESSIONS_STORE_NAME, getUserFromidb } from '@/indexeddb'
-import { Session, isSessionsWithChosenCardArray, SessionWithChosenCard, SessionWithReview, User, DeckInfo } from '@/types'
+import { User } from '@/types'
 import * as T from 'io-ts'
 import * as E from 'fp-ts/Either'
 import * as IOTS from '@/types/iotsTypes'
@@ -84,7 +84,7 @@ export const setUserInFireStore = async(user: User) => {
   }
 }
 
-export const setSessionInFireStore = async(session: Session | SessionWithChosenCard | SessionWithReview) => {
+export const setSessionInFireStore = async(session: IOTS.SessionT | IOTS.SessionWithChosenCardT | IOTS.SessionWithReviewT) => {
   try {
     console.log('Setting session...')
     const encodedSession = validateAndEncodeDbData(
