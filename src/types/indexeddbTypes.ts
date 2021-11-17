@@ -1,23 +1,6 @@
 import * as T from 'io-ts'
 import { DateTime } from 'luxon'
-import { Session, SessionWithChosenCard, Review } from "./"
 import * as IOTS from './iotsTypes'
-
-export interface IDBSession extends Omit<Session, 'datetime'> {
-  datetime: Date
-}
-
-export interface IDBSessionWithChosenCard extends Omit<SessionWithChosenCard, 'datetime'> {
-  datetime: Date
-}
-
-interface IDBReview extends Omit<Review, 'datetime'> {
-  datetime: Date
-}
-
-export interface IDBSessionWithReview extends IDBSessionWithChosenCard {
-  review: IDBReview
-}
 
 export const JSDateTimeT = new T.Type<Date, DateTime, unknown>(
   'JSDateTimeT',
