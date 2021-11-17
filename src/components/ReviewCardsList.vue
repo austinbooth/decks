@@ -17,11 +17,11 @@
 import { defineComponent } from "vue"
 import { getUserFromidb } from '@/indexeddb'
 import { getUnreviewedSessions } from "@/firebase"
-import { SessionWithChosenCard } from "@/types"
+import { SessionWithChosenCardArrayT } from "@/types/iotsTypes"
 
 export default defineComponent({
   data() {
-    const unreviewedSessions: SessionWithChosenCard[] = []
+    const unreviewedSessions: SessionWithChosenCardArrayT = []
     return {
       unreviewedSessions,
     }
