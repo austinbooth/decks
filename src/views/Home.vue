@@ -63,6 +63,7 @@ export default defineComponent({
   },
   methods: {
     chooseDeck(deck: string) {
+      this.$store.commit('clearSessionData') // clear any old session data
       this.$store.commit('setChosenDeck', deck)
       this.$router.push('session')
     }
