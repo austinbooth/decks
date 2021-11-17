@@ -20,14 +20,14 @@
 </template>
 
 <script lang="ts">
-import { Session, SwipedCard } from "@/types"
+import { SessionT, SwipedCardT } from "@/types/iotsTypes"
 import { defineComponent } from "vue"
 import mapKeys from "lodash/mapKeys"
 import { DateTime } from 'luxon'
 
 export default defineComponent({
   data() {
-    let selected: SwipedCard = {card: {uid:'', headline:'', description:''}, swiped: 'right'}
+    let selected: SwipedCardT = {card: {uid:'', headline:'', description:''}, swiped: 'right'}
     return {
       selected
     }
@@ -35,7 +35,7 @@ export default defineComponent({
   methods: {
     itemClick(e: Event) {
       const target = (e.currentTarget as HTMLInputElement)
-      const card = (this.$store.state.currentSession as Session).cardsSwiped.find((c) => c.card.uid === target.id)
+      const card = (this.$store.state.currentSession as SessionT).cardsSwiped.find((c) => c.card.uid === target.id)
       if (card) {
         this.selected = card
       }
