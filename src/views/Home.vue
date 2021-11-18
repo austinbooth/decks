@@ -2,14 +2,7 @@
   <div>
     <div class="home-container">
       <h3>Decks:</h3>
-      <button
-        v-for="deck in $data.publisherDecks"
-        :key="deck.uid"
-        class="deck-btn"
-        @click="chooseDeck(deck.uid)"
-      >
-        {{ deck.name }}
-      </button>
+      <DeckList :decks="this.$data.publisherDecks" />
     </div>
     <ReviewCardsList />
   </div>
@@ -18,6 +11,7 @@
 <script lang="ts">
 import { defineComponent } from "vue"
 import ReviewCardsList from "@/components/ReviewCardsList.vue"
+import DeckList from "@/components/DeckList.vue"
 import { openDB } from "idb"
 import { createAnonymousUser, getAllPublisherDecks } from "@/firebase"
 import {
@@ -47,6 +41,7 @@ export default defineComponent({
   name: "Home",
   components: {
     ReviewCardsList,
+    DeckList,
   },
   data() {
     const publisherDecks: DeckInfoArrayT = []
@@ -61,13 +56,6 @@ export default defineComponent({
       this.$data.publisherDecks = decks ?? []
     })()
   },
-  methods: {
-    chooseDeck(deck: string) {
-      this.$store.commit('clearSessionData') // clear any old session data
-      this.$store.commit('setChosenDeck', deck)
-      this.$router.push('session')
-    }
-  }
 })
 </script>
 <style scoped>
@@ -80,9 +68,5 @@ export default defineComponent({
   margin: 18px auto 0;
   padding: 8px 3px 24px;
   border-radius: 5px;
-}
-.deck-btn {
-  width: fit-content;
-  margin: 4px 0;
 }
 </style>
