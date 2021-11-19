@@ -42,6 +42,7 @@ describe('ReviewCardsList.vue', () => {
     })
     const elements = wrapper.findAll('[class="chosen"]')
     expect(elements).toHaveLength(1)
+    expect(elements[0].attributes().id).toBe(data[0].uid)
     expect(elements[0].text()).toBe(card1.headline)
   })
 })
