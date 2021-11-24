@@ -32,8 +32,17 @@ export const data: SessionWithChosenCardArrayT = [
 ]
 
 describe('ReviewCardsList.vue', () => {
-  test('Renders the correct number of elements with each elements text being the swiped right card headline', () => {
+  test('Renders cards to review correctly. Redirects appropriately when clicked.', async () => {
+    const $router = {
+      push: jest.fn()
+    }
+
     const wrapper = mount(ReviewCardsList, {
+      global: {
+        mocks: {
+          $router
+        }
+      },
       data() {
         return {
           unreviewedSessions: data
@@ -44,5 +53,7 @@ describe('ReviewCardsList.vue', () => {
     expect(elements).toHaveLength(1)
     expect(elements[0].attributes().id).toBe(data[0].uid)
     expect(elements[0].text()).toBe(card1.headline)
+    await elements[0].trigger('click')
+    expect($router.push).toHaveBeenCalledWith({name: "ReviewCard", params: { session: data[0].uid}})
   })
 })
