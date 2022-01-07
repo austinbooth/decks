@@ -20,6 +20,11 @@ npm run build
 npm run test:unit
 ```
 
+* To run a single unit test
+```
+npm run test:unit <testName>
+```
+
 ### Run your end-to-end tests
 ```
 npm run test:e2e
